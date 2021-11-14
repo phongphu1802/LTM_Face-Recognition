@@ -9,8 +9,30 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+
 import javax.swing.ImageIcon;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -21,12 +43,32 @@ import org.opencv.imgcodecs.Imgcodecs;
  */
 public class Face_Recognition extends javax.swing.JFrame {
     Camera camera;
+    private Socket socket;
     /**
      * Creates new form Face_Recognition
      */
-    public Face_Recognition() {
+    public Face_Recognition() throws IOException {
+    	
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         initComponents();
+    }
+    public Socket ConnectServer(String host,int port) {
+    	try {
+			 socket = new Socket(host,port);
+			//System.out.println("client connected...");
+			//out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			 return socket;
+		}catch(UnknownHostException ex) {
+			ex.printStackTrace();
+		}catch (IOException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+    	return null;
+    }
+    public void disconnectServer() throws IOException {
+    	socket.close();
     }
 
     /**
@@ -126,17 +168,47 @@ public class Face_Recognition extends javax.swing.JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                camera = new Camera();
+				camera = new Camera();
+				
                 
                 new Thread(new Runnable(){
                     @Override
                     public void run(){
-                        camera.startCamera();
+                        try {
+                            camera.startCamera();
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Face_Recognition.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }).start();
             }
         });
     }//GEN-LAST:event_jButton2MouseClicked
+    public static BufferedImage MatToBufferedImage(Mat frame) {
+    //Mat() to BufferedImage
+    int type = 0;
+    if (frame.channels() == 1) {
+        type = BufferedImage.TYPE_BYTE_GRAY;
+    } else if (frame.channels() == 3) {
+        type = BufferedImage.TYPE_3BYTE_BGR;
+    }
+    BufferedImage image = new BufferedImage(frame.width(), frame.height(), type);
+    WritableRaster raster = image.getRaster();
+    DataBufferByte dataBuffer = (DataBufferByte) raster.getDataBuffer();
+    byte[] data = dataBuffer.getData();
+    frame.get(0, 0, data);
+    return image;
+}
+public static Mat bufferedImageToMat(BufferedImage bi) {
+        Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+        byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        mat.put(0, 0, data);
+        return mat;
+}
+    
+    
+    
+    
     
     //btn Thêm nhận dạng mới
     private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
@@ -144,15 +216,56 @@ public class Face_Recognition extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3MouseClicked
     
     
-    public void loadAnh(Mat image){
-        byte[] imageData;
-        ImageIcon icon;
-        final MatOfByte buf = new MatOfByte();
-        Imgcodecs.imencode(".jpg", image, buf);
-        imageData = buf.toArray();
-        icon = new ImageIcon(imageData);
-        jLabel3.setIcon(icon);
-        setVisible(true);
+    public void loadAnh(Mat image) throws IOException, InterruptedException{
+            socket = ConnectServer("localhost", 4606);  
+            byte[] imageData;
+            ImageIcon icon;
+            InputStream inputStream = socket.getInputStream();
+            OutputStream outputStream = socket.getOutputStream();
+            BufferedImage bImage = MatToBufferedImage(image);
+            
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(bImage, "jpg", byteArrayOutputStream);
+            byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
+            outputStream.write(size);
+            outputStream.write(byteArrayOutputStream.toByteArray());
+            outputStream.flush();
+            System.out.println("Flushed: " + System.currentTimeMillis());
+            
+            System.out.println("Closing: " + System.currentTimeMillis());
+            //socket.close();
+            Thread.sleep(2000);
+            //socket =  ConnectServer("localhost", 4606); 
+            BufferedImage bf;
+            boolean c = true;
+            while(c){
+               
+                    byte[] sizeAr = new byte[4];
+                        inputStream.read(sizeAr);
+                        int size2 = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
+                        byte[] imageAr = new byte[size2];
+                        inputStream.read(imageAr);
+                        bf= ImageIO.read(new ByteArrayInputStream(imageAr));
+                        System.out.println(bf.toString());
+                        if(bf!=null){
+                             Mat m = bufferedImageToMat(bf);
+                         final MatOfByte buf2 = new MatOfByte();
+                        Imgcodecs.imencode(".jpg", m, buf2);
+                         imageData = buf2.toArray();
+                         icon = new ImageIcon(imageData);
+                           jLabel3.setIcon(icon);
+                        setVisible(true);
+                        }
+                       
+                    c=false;
+                
+            }  
+               
+              
+        
+      
+        socket.close();
+        
     }
     /**
      * @param args the command line arguments
@@ -184,7 +297,11 @@ public class Face_Recognition extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Face_Recognition().setVisible(true);
+                try {
+                    new Face_Recognition().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(Face_Recognition.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
