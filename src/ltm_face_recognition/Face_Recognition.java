@@ -31,6 +31,9 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -59,15 +62,12 @@ public class Face_Recognition extends javax.swing.JFrame {
     public Socket ConnectServer(String host,int port) {
     	try {
 			 socket = new Socket(host,port);
-			//System.out.println("client connected...");
-			//out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			//in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			 return socket;
 		}catch(UnknownHostException ex) {
 			ex.printStackTrace();
 		}catch (IOException e) {
 			// TODO: handle exception
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Server is busy right now");
 		}
     	return null;
     }
@@ -194,7 +194,7 @@ public class Face_Recognition extends javax.swing.JFrame {
     //btn Mở máy ảnh
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
         setVisible(false);
-        dispose();
+        //dispose();
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -207,8 +207,6 @@ public class Face_Recognition extends javax.swing.JFrame {
                         try {
                             camera.startCamera();
                         } catch (InterruptedException ex) {
-                            Logger.getLogger(Face_Recognition.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (IOException ex) {
                             Logger.getLogger(Face_Recognition.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
@@ -250,53 +248,59 @@ public static Mat bufferedImageToMat(BufferedImage bi) {
     
     public void loadAnh(Mat image) throws IOException, InterruptedException{
             socket = ConnectServer("localhost", 4606);  
-            byte[] imageData;
-            ImageIcon icon;
-            InputStream inputStream = socket.getInputStream();
-            OutputStream outputStream = socket.getOutputStream();
-            BufferedImage bImage = MatToBufferedImage(image);
-            
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ImageIO.write(bImage, "jpg", byteArrayOutputStream);
-            byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
-            outputStream.write(size);
-            outputStream.write(byteArrayOutputStream.toByteArray());
-            outputStream.flush();
-            System.out.println("Flushed: " + System.currentTimeMillis());
-            
-            System.out.println("Closing: " + System.currentTimeMillis());
-            //socket.close();
-            Thread.sleep(2000);
-            //socket =  ConnectServer("localhost", 4606); 
-            BufferedImage bf;
-            boolean c = true;
-            while(c){
-               
-                    byte[] sizeAr = new byte[4];
-                        inputStream.read(sizeAr);
-                        int size2 = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
-                        byte[] imageAr = new byte[size2];
-                        inputStream.read(imageAr);
-                        bf= ImageIO.read(new ByteArrayInputStream(imageAr));
-                        System.out.println(bf.toString());
-                        if(bf!=null){
-                             Mat m = bufferedImageToMat(bf);
-                         final MatOfByte buf2 = new MatOfByte();
-                        Imgcodecs.imencode(".jpg", m, buf2);
-                         imageData = buf2.toArray();
-                         icon = new ImageIcon(imageData);
-                           jLabel3.setIcon(icon);
-                        setVisible(true);
-                        }
-                       
-                    c=false;
+            if(socket!=null&&socket.isConnected()) {
+            	byte[] imageData;
+                ImageIcon icon;
+                InputStream inputStream = socket.getInputStream();
+                OutputStream outputStream = socket.getOutputStream();
+                BufferedImage bImage = MatToBufferedImage(image);
                 
-            }  
-               
-              
-        
-      
-        socket.close();
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ImageIO.write(bImage, "jpg", byteArrayOutputStream);
+                byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
+                outputStream.write(size);
+                outputStream.write(byteArrayOutputStream.toByteArray());
+                outputStream.flush();
+                System.out.println("Flushed: " + System.currentTimeMillis());
+                
+                System.out.println("Closing: " + System.currentTimeMillis());
+                //socket.close();
+                Thread.sleep(2000);
+                //socket =  ConnectServer("localhost", 4606); 
+                BufferedImage bf;
+                boolean c = true;
+                while(c){
+                   
+                        byte[] sizeAr = new byte[4];
+                            inputStream.read(sizeAr);
+                            int size2 = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
+                            byte[] imageAr = new byte[size2];
+                            inputStream.read(imageAr);
+                            bf= ImageIO.read(new ByteArrayInputStream(imageAr));
+                            System.out.println(bf.toString());
+                            if(bf!=null){
+                                 Mat m = bufferedImageToMat(bf);
+                             final MatOfByte buf2 = new MatOfByte();
+                            Imgcodecs.imencode(".jpg", m, buf2);
+                             imageData = buf2.toArray();
+                             icon = new ImageIcon(imageData);
+                               jLabel3.setIcon(icon);
+                            setVisible(true);
+                            }
+                           
+                        c=false;
+                    
+                }  
+            
+                  
+            
+          
+            socket.close();
+            }
+            else {
+            	this.setVisible(false);
+            }
+            
         
     }
     /**
