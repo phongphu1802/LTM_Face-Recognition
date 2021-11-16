@@ -5,7 +5,7 @@
  */
 package DAO;
 
-import com.mysql.jdbc.ResultSetMetaData;
+//import com.mysql.jdbc.ResultSetMetaData;
 import java.util.HashMap;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -139,26 +139,26 @@ public class MyConnectUnit {
         
     }
     
-    //Hàm lấy danh sách tên cột trong Result select từ CSDL    
-    public static String[] getColumnName(ResultSet result) throws SQLException{
-        //Lây ResultSetMetaDate từ Result
-        ResultSetMetaData rsMetaData = (ResultSetMetaData)result.getMetaData();
-        
-        //Lây số lượng cột trong Result
-        int columnCount  = rsMetaData.getColumnCount();
-        
-        //Khai báo danh sách các cột
-        String[] list = new String[columnCount];
-        
-        //Duyệt các cột
-        for(int i = 0 ; i<columnCount; i++){
-            //Lấy tên đưa vào danh sách
-            list[i] = rsMetaData.getColumnName(i);
-            
-        }
-            //Trả danh sách ra ngoài  
-            return list;
-    }
+//    //Hàm lấy danh sách tên cột trong Result select từ CSDL    
+//    public static String[] getColumnName(ResultSet result) throws SQLException{
+//        //Lây ResultSetMetaDate từ Result
+//        ResultSetMetaData rsMetaData = (ResultSetMetaData)result.getMetaData();
+//        
+//        //Lây số lượng cột trong Result
+//        int columnCount  = rsMetaData.getColumnCount();
+//        
+//        //Khai báo danh sách các cột
+//        String[] list = new String[columnCount];
+//        
+//        //Duyệt các cột
+//        for(int i = 0 ; i<columnCount; i++){
+//            //Lấy tên đưa vào danh sách
+//            list[i] = rsMetaData.getColumnName(i);
+//            
+//        }
+//            //Trả danh sách ra ngoài  
+//            return list;
+//    }
 
     public void Close() throws Exception{
         this.connect.Close();

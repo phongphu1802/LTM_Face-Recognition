@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
  * @author LAPTOPTOKYO
  */
 public class FrameDangNhap extends javax.swing.JFrame {
-    DangNhapController DangNhap = new DangNhapController();
+    DangNhapController DangNhap = new DangNhapController("localhost",4606);
     /**
      * Creates new form FrameDangNhap
      */
