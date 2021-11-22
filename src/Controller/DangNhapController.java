@@ -16,10 +16,13 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import ltm_face_recognition.Face_Recognition;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import ltm_face_recognition.Face_Recognition;
+
 
 /**
  *
@@ -74,13 +77,13 @@ public class DangNhapController {
                     try {
                         object1 = (JSONObject) parser.parse(in.readLine());
                         System.out.println(object1.get("LastName"));
-                        System.out.println(object1.get("NameUsser"));
-                        System.out.println(object1.get("Date_of_birth"));
-                    } catch (ParseException ex) {
+                        System.out.println(object1.get("NameUser"));
+                        //System.out.println(object1.get("Date_of_birth"));
+                    } catch (Exception ex) {
                         Logger.getLogger(DangNhapController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     Face_Recognition face = new Face_Recognition();
-                    face.Start((String) object1.get("LastName"), (String) object1.get("NameUsser"), (String) object1.get("Date_of_birth"));
+                    face.Start((String) object1.get("LastName"), (String) object1.get("NameUser"), (String) object1.get("Date_of_birth"));
                     face.setVisible(true);
                     Result = "Đăng nhập thành công";
                     break;

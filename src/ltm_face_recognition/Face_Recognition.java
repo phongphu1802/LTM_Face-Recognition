@@ -79,7 +79,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         this.NameUser=NameUser;
         this.Date_of_birth=Date_of_birth;
         jLabel2.setText("Tên người dùng: "+this.LastName+" "+this.NameUser);
-        jLabel4.setText("Ngày sinh: "+this.Date_of_birth);
+        //jLabel4.setText("Ngày sinh: "+this.Date_of_birth);
     }
 
     /**
@@ -242,6 +242,12 @@ public class Face_Recognition extends javax.swing.JFrame {
     public void loadAnh(Mat image) throws IOException, InterruptedException{
         socket = ConnectServer("localhost", 4606);  
         if(socket!=null&&socket.isConnected()) {
+           BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.write("Camera");
+            out.newLine();
+            out.flush();
+            out.close();
+            socket = ConnectServer("localhost", 4606);
             byte[] imageData;
             ImageIcon icon;
             InputStream inputStream = socket.getInputStream();
@@ -258,7 +264,6 @@ public class Face_Recognition extends javax.swing.JFrame {
                 
             System.out.println("Closing: " + System.currentTimeMillis());
             //socket.close();
-            Thread.sleep(2000);
             //socket =  ConnectServer("localhost", 4606); 
             BufferedImage bf;
             boolean c = true;
@@ -269,7 +274,7 @@ public class Face_Recognition extends javax.swing.JFrame {
                 byte[] imageAr = new byte[size2];
                 inputStream.read(imageAr);
                 bf= ImageIO.read(new ByteArrayInputStream(imageAr));
-                System.out.println(bf.toString());
+//                System.out.println(bf.toString());
                 if(bf!=null){
                     Mat m = bufferedImageToMat(bf);
                     final MatOfByte buf2 = new MatOfByte();
@@ -278,8 +283,9 @@ public class Face_Recognition extends javax.swing.JFrame {
                     icon = new ImageIcon(imageData);
                     jLabel3.setIcon(icon);
                     setVisible(true);
+                    c=false;
                 }
-            c=false;
+            
             }     
         socket.close();
         }else {

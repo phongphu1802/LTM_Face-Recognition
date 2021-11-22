@@ -14,6 +14,6 @@ import java.sql.SQLException;
  */
 public class MyConnect {
     public static MyConnectUnit getDAO() throws Exception{
-        return new MyConnectUnit("localhost:1433","sa","123456","LTM");
+        return new MyConnectUnit("localhost","sa","123456","LTM");
     }
 }

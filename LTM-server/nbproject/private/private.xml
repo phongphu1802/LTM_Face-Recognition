@@ -3,10 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/LAPTOPTOKYO/Documents/NetBeansProjects/LTM-server/src/server/App.java</file>
-            <file>file:/C:/Users/LAPTOPTOKYO/Documents/NetBeansProjects/LTM-server/src/DTO/TaiKhoanDTO.java</file>
-            <file>file:/C:/Users/LAPTOPTOKYO/Documents/NetBeansProjects/LTM-server/src/server/Server.java</file>
-            <file>file:/C:/Users/LAPTOPTOKYO/Documents/NetBeansProjects/LTM-server/src/Controller/DangNhapController.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/server/ConnectAPI.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/server/Server.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/server/App.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/server/ImageProcess.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/DAO/MyConnectUnit.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/Controller/DangNhapController.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/DAO/MyConnect.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/server/face_detect.java</file>
+            <file>file:/C:/Users/LENOVO/Desktop/face_regconize/LTM_Face-Recognition/LTM-server/src/DAO/MySQLConnect.java</file>
         </group>
     </open-files>
 </project-private>

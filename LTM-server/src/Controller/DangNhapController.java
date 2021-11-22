@@ -60,7 +60,7 @@ public class DangNhapController {
         JSONObject user=new JSONObject();
         user.put("LastName", arUser.get(0).getLastName());
         user.put("NameUser", arUser.get(0).getNameUser());
-        user.put("Date_of_birth",arUser.get(0).getDate_of_birth());
+        //user.put("Date_of_birth",arUser.get(0).getDate_of_birth());
         return user;    
     }
 }

@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,6 +22,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,30 +41,33 @@ public class Server {
 
     public ServerSocket server;
     Socket socket;
+    ConnectAPI connectAPI;
+    BufferedReader in=null;
 
     public Server(int port) {  	   	
 	try {
             System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
 	    server = new ServerSocket(port);
-            server.setSoTimeout(30000);
-            System.out.println("server running.....");		
-            socket = server.accept();
-            while(!server.isClosed()){
-                switch(Request()){
-                    case "login":{
-                        Login();
-                        break;
+            server.setSoTimeout(30000);		
+                while(true){
+                    System.out.println("server running.....");	
+                    socket = server.accept();
+                    switch(Request()){
+                        case "login":{
+                            Login();
+                            break;
+                        }
+                        case "Camera":{
+                            face_detect();
+                            break;
+                        }
                     }
-                    case "":{
-                        Camera();
-                        break;
-                    }
-                }
+                
+                socket.close();
+                
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        }catch(Exception ex) {
-            ex.printStackTrace();
         }		
     }
 	
@@ -77,7 +82,7 @@ public class Server {
         JSONParser parser = new JSONParser();
         JSONObject object = null;
         try {
-            object = (JSONObject) parser.parse(Request());
+            object = (JSONObject)parser.parse(Request());
         } catch (ParseException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -108,11 +113,10 @@ public class Server {
         }
     }
     
-    public void Camera(){
+    public void face_detect() throws InterruptedException{
+        System.out.print("im in face_detect");
         InputStream inputStream = null;
         try {
-            DataInputStream dis;
-            DataOutputStream dout;
             BufferedImage bimg;
             byte[] real=null;
             int bytesRead;
@@ -123,6 +127,7 @@ public class Server {
             int size = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
             byte[] imageAr = new byte[size];
             inputStream.read(imageAr);
+            System.out.println( inputStream.read(imageAr));
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             bimg = ImageIO.read(new ByteArrayInputStream(imageAr));
             if(bimg!=null){
@@ -171,5 +176,9 @@ public class Server {
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    public String Regconize() {
+    	
+    	return null;
     }
 }
