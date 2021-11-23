@@ -88,7 +88,7 @@ public class FrameDangNhap extends javax.swing.JFrame {
         jPanel1.add(jLabel4);
         jLabel4.setBounds(180, 270, 50, 70);
 
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangnhap/nhaplai.png"))); // NOI18N
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangky/dangky.png"))); // NOI18N
         jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel5MouseClicked(evt);
@@ -192,24 +192,25 @@ public class FrameDangNhap extends javax.swing.JFrame {
     
     //Tạo even cho nút Nhập lại
     private void jLabel5MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseReleased
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangnhap/nhaplai1.png"))); // NOI18N
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangky/dangky-click.png"))); // NOI18N
     }//GEN-LAST:event_jLabel5MouseReleased
 
     private void jLabel5MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MousePressed
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangnhap/nhaplai1.png"))); // NOI18N
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangky/dangky-click.png"))); // NOI18N
     }//GEN-LAST:event_jLabel5MousePressed
 
     private void jLabel5MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseEntered
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangnhap/nhaplai1.png"))); // NOI18N
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangky/dangky-click.png"))); // NOI18N
     }//GEN-LAST:event_jLabel5MouseEntered
 
     private void jLabel5MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseExited
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangnhap/nhaplai.png"))); // NOI18N
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dangky/dangky.png"))); // NOI18N
     }//GEN-LAST:event_jLabel5MouseExited
 
     private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
-        jTextField1.setText("Nhập tài khoản");
-        jPasswordField1.setText("password");
+        setVisible(false);
+        FrameDangKy s = new FrameDangKy();
+        s.setVisible(true);
     }//GEN-LAST:event_jLabel5MouseClicked
 
     /**
