@@ -18,6 +18,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,6 +29,10 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -34,11 +41,16 @@ import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
+import org.json.simple.JsonObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
+
+import com.google.gson.Gson;
 
 /**
  *
@@ -206,7 +218,10 @@ public class Face_Recognition extends javax.swing.JFrame {
                             camera.startCamera();
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Face_Recognition.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                        } catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
                     }
                 }).start();
             }
@@ -240,41 +255,35 @@ public class Face_Recognition extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton3MouseClicked
     
-    public void loadAnh(Mat image) throws IOException, InterruptedException{
+    public void loadAnh(Mat image) throws IOException, InterruptedException, ParseException{
+    	//connect to server
         socket = ConnectServer("localhost", 4606);  
         if(socket!=null&&socket.isConnected()) {
-           BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            out.write("Camera");
-            out.newLine();
-            out.flush();
-            out.close();
-            socket = ConnectServer("localhost", 4606);
+        	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        	BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        	//signal to detect face
+        	writer.write("Camera");
+        	writer.newLine();
+        	writer.flush();
             byte[] imageData;
             ImageIcon icon;
-            InputStream inputStream = socket.getInputStream();
-            OutputStream outputStream = socket.getOutputStream();
+            //get Image from camera
             BufferedImage bImage = MatToBufferedImage(image);
-                
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ImageIO.write(bImage, "jpg", byteArrayOutputStream);
-            byte[] size = ByteBuffer.allocate(4).putInt(byteArrayOutputStream.size()).array();
-            outputStream.write(size);
-            outputStream.write(byteArrayOutputStream.toByteArray());
-            outputStream.flush();
-            System.out.println("Flushed: " + System.currentTimeMillis());
-                
-            System.out.println("Closing: " + System.currentTimeMillis());
-            //socket.close();
-            //socket =  ConnectServer("localhost", 4606); 
+            ImageIO.write(bImage, "jpg", byteArrayOutputStream);//image to byte[]
+            String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());//encode image to string
+            //send image 
+            writer.write(byteImage);
+            writer.newLine();
+            writer.flush();
             BufferedImage bf;
             boolean c = true;
             while(c){
-                byte[] sizeAr = new byte[4];
-                inputStream.read(sizeAr);
-                int size2 = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
-                byte[] imageAr = new byte[size2];
-                inputStream.read(imageAr);
-                bf= ImageIO.read(new ByteArrayInputStream(imageAr));
+            	JSONParser parser = new JSONParser();
+            	//get json object from server
+            	String line = reader.readLine();
+                //add image receive to bufferimage
+                bf= ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(line)));
 //                System.out.println(bf.toString());
                 if(bf!=null){
                     Mat m = bufferedImageToMat(bf);

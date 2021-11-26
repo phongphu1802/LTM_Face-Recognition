@@ -20,8 +20,10 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,7 +45,7 @@ public class Server {
     Socket socket;
     ConnectAPI connectAPI;
     BufferedReader in=null;
-
+    BufferedWriter out = null;
     public Server(int port) {  	   	
 	try {
             System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
@@ -52,17 +54,17 @@ public class Server {
                 while(true){
                     System.out.println("server running.....");	
                     socket = server.accept();
+                   
                     switch(Request()){
-                        case "login":{
-                            Login();
-                            break;
-                        }
-                        case "Camera":{
-                            face_detect();
-                            break;
-                        }
+                    case "login":{
+                        Login();
+                        break;
                     }
-                
+                    case "Camera":{
+                        face_detect();
+                        break;
+                    }
+                }
                 socket.close();
                 
             }
@@ -113,42 +115,30 @@ public class Server {
         }
     }
     
-    public void face_detect() throws InterruptedException{
-        System.out.print("im in face_detect");
-        InputStream inputStream = null;
+    public void face_detect() throws InterruptedException, ParseException{
+        System.out.println("im in face_detect");
         try {
+        	ByteArrayOutputStream byteArrayOutputStream= new ByteArrayOutputStream();
             BufferedImage bimg;
-            byte[] real=null;
-            int bytesRead;
-            inputStream = socket.getInputStream();
-            OutputStream outputStream = socket.getOutputStream();
-            byte[] sizeAr = new byte[4];
-            inputStream.read(sizeAr);
-            int size = ByteBuffer.wrap(sizeAr).asIntBuffer().get();
-            byte[] imageAr = new byte[size];
-            inputStream.read(imageAr);
-            System.out.println( inputStream.read(imageAr));
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            String line = in.readLine();
+             byte[] imageAr = Base64.getDecoder().decode(line);
             bimg = ImageIO.read(new ByteArrayInputStream(imageAr));
             if(bimg!=null){
-                System.out.println("in process");
-                BufferedImage mat =face_detect.detect(bufferedImageToMat(bimg));
-                ByteArrayOutputStream byteArrayOutputStream2= new ByteArrayOutputStream();
-                ImageIO.write(mat, "jpg", byteArrayOutputStream2);
-                byte[] size2 = ByteBuffer.allocate(4).putInt(byteArrayOutputStream2.size()).array();
-                outputStream.write(size2);
-                outputStream.write(byteArrayOutputStream2.toByteArray());
-                outputStream.flush();
-                //ImageIO.write(mat, "jpg", out);
+                BufferedImage mat =face_detect.detect(bufferedImageToMat(bimg));;
+                ImageIO.write(mat, "jpg", byteArrayOutputStream);
+                if(byteArrayOutputStream!=null) { 
+                	String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+                	 System.out.println(byteImage);
+                    Reply(byteImage);
+                }
+               
             }
+            //in.close();
+           // out.close();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            try {
-                inputStream.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
+           
         }
     }
     
@@ -156,8 +146,7 @@ public class Server {
     public String Request(){
         String request="";
         try {
-            BufferedReader in = null;
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        	 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             request=in.readLine();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -169,7 +158,7 @@ public class Server {
     public void Reply(String stResult){
         BufferedWriter out = null;
         try {
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        	 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             out.write(stResult);
             out.newLine();
             out.flush();

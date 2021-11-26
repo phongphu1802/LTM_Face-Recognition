@@ -33,6 +33,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+
+import org.json.simple.parser.ParseException;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -80,7 +82,7 @@ public class Camera extends JFrame{
         setVisible(true);
     }
     
-    public void startCamera() throws InterruptedException{
+    public void startCamera() throws InterruptedException, ParseException{
         capture = new VideoCapture(0);
         image = new Mat();
         byte[] imageData;
