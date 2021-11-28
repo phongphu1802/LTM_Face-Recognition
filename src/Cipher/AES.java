@@ -1,4 +1,4 @@
-package ltm.server;
+package Cipher;
 
 
 import java.io.UnsupportedEncodingException;
@@ -16,16 +16,19 @@ import javax.crypto.spec.SecretKeySpec;
 public class AES {
 	private static SecretKey secretKey;
 	private static byte[] key;
-	public static void generatorKey() {
-		MessageDigest sha=null;
+	public static SecretKey generatorKey() {
+		
 		try {
 			KeyGenerator keyGen = KeyGenerator.getInstance("AES");
 			SecureRandom random = new SecureRandom(); // cryptograph. secure random 
 			keyGen.init(256,random); 
 			secretKey = keyGen.generateKey();
+			return secretKey;
 		} catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }
+        } 
+		return null;
+       
 	}
 	  public static String encrypt(String strToEncrypt) 
 	    {
@@ -43,11 +46,10 @@ public class AES {
 	        return null;
 	    }
 	 
-	    public static String decrypt(String strToDecrypt,SecretKey key) 
+	    public static String decrypt(String strToDecrypt,SecretKey key ) 
 	    {
 	        try
 	        {
-	            secretKey = key;
 	            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
 	            cipher.init(Cipher.DECRYPT_MODE, key);
 	            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));

@@ -25,8 +25,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -82,7 +88,7 @@ public class Camera extends JFrame{
         setVisible(true);
     }
     
-    public void startCamera() throws InterruptedException, ParseException{
+    public void startCamera() throws InterruptedException, ParseException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException{
         capture = new VideoCapture(0);
         image = new Mat();
         byte[] imageData;

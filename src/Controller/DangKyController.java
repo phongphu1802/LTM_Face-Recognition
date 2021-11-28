@@ -27,7 +27,7 @@ public class DangKyController {
     Socket socket = null;
     BufferedWriter out = null;
     BufferedReader in = null;
-    
+    private static String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCgFGVfrY4jQSoZQWWygZ83roKXWD4YeT2x2p41dGkPixe73rT2IW04glagN2vgoZoHuOPqa5and6kAmK2ujmCHu6D1auJhE2tXP+yLkpSiYMQucDKmCsWMnW9XlC5K7OSL77TXXcfvTvyZcjObEz6LIBRzs6+FqpFbUO9SJEfh6wIDAQAB";
     public DangKyController(String host, int port){
         try{
             socket = new Socket(host, port);

@@ -31,10 +31,17 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
 
 import javax.swing.ImageIcon;
@@ -50,18 +57,24 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 
-import com.google.gson.Gson;
+
+import Cipher.RSA;
+import Cipher.AES;
 
 /**
  *
  * @author LAPTOPTOKYO
  */
 public class Face_Recognition extends javax.swing.JFrame {
+	 private static String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCgFGVfrY4jQSoZQWWygZ83roKXWD4YeT2x2p41dGkPixe73rT2IW04glagN2vgoZoHuOPqa5and6kAmK2ujmCHu6D1auJhE2tXP+yLkpSiYMQucDKmCsWMnW9XlC5K7OSL77TXXcfvTvyZcjObEz6LIBRzs6+FqpFbUO9SJEfh6wIDAQAB";
     private String LastName="";
     private String NameUser="";
     private String Date_of_birth="";
+    private RSA rsa;
+    private AES aes;
     Camera camera;
     private Socket socket;
+    
     /**
      * Creates new form Face_Recognition
      */
@@ -73,6 +86,8 @@ public class Face_Recognition extends javax.swing.JFrame {
     public Socket ConnectServer(String host,int port) {
     	try {
             socket = new Socket(host,port);
+             rsa = new RSA();
+            aes = new AES();
             return socket;
 	}catch(UnknownHostException ex) {
             ex.printStackTrace();
@@ -221,6 +236,21 @@ public class Face_Recognition extends javax.swing.JFrame {
                         } catch (ParseException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+						} catch (InvalidKeyException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (BadPaddingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalBlockSizeException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchPaddingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (NoSuchAlgorithmException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
                     }
                 }).start();
@@ -255,14 +285,23 @@ public class Face_Recognition extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton3MouseClicked
     
-    public void loadAnh(Mat image) throws IOException, InterruptedException, ParseException{
+    public void loadAnh(Mat image) throws IOException, InterruptedException, ParseException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException{
     	//connect to server
         socket = ConnectServer("localhost", 4606);  
         if(socket!=null&&socket.isConnected()) {
         	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         	BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        	//signal to detect face
-        	writer.write("Camera");
+        	//encrypt
+        	SecretKey secretKey = aes.generatorKey();
+        	String cipherText1 = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+        	String RSAEncrypt =	Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
+        	//send secret key
+        	writer.write(RSAEncrypt);
+        	writer.newLine();
+        	writer.flush();
+        	
+        	//send func keyword by secretKey
+        	writer.write(aes.encrypt("Camera"));
         	writer.newLine();
         	writer.flush();
             byte[] imageData;
@@ -272,18 +311,18 @@ public class Face_Recognition extends javax.swing.JFrame {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ImageIO.write(bImage, "jpg", byteArrayOutputStream);//image to byte[]
             String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());//encode image to string
+            String cipherText2 =aes.encrypt(byteImage);
             //send image 
-            writer.write(byteImage);
+            writer.write(cipherText2);
             writer.newLine();
             writer.flush();
             BufferedImage bf;
             boolean c = true;
             while(c){
-            	JSONParser parser = new JSONParser();
-            	//get json object from server
             	String line = reader.readLine();
                 //add image receive to bufferimage
-                bf= ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(line)));
+            	String plainText = aes.decrypt(line, secretKey);
+                bf= ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(plainText)));
 //                System.out.println(bf.toString());
                 if(bf!=null){
                     Mat m = bufferedImageToMat(bf);
