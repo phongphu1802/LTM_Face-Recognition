@@ -7,13 +7,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import javax.imageio.ImageIO;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
 import Controller.DangNhapController;
 
 /**
@@ -21,12 +18,13 @@ import Controller.DangNhapController;
  *
  */
 public class App 
-{	public static ConnectAPI connectAPI;
+{
+    public static ConnectAPI connectAPI;
     public static void main( String[] args ) throws ClassNotFoundException, IOException, SQLException, Exception
     {
         Server t= new Server(4606);
-    	/*final String FACE_DETECT_API = "a";
-    	 connectAPI = new ConnectAPI();
+        /*final String FACE_DETECT_API = "a";
+    	connectAPI = new ConnectAPI();
 		File file = new File("C:\\Users\\LENOVO\\Desktop\\face_regconize\\258767165_423087576039271_6129665173535320895_n.jpg");
 		byte[] buff = connectAPI.getBytesFromFile(file);
 		String url = "https://api-us.faceplusplus.com/facepp/v3/search";
@@ -65,21 +63,25 @@ public class App
             	BufferedImage im = ImageIO.read(file);
             	ImageIO.write(im, "JPG", test);
             	if(setUpUserIdAPI(tokenCurrentImage,user_id)) {
-            		System.out.println("add success");
+            System.out.println("add success");
             	}else {
-            		System.out.println("set id fail");
-            		
+            		System.out.println("set id fail");	
             	}
             }else {
             	System.out.println("set to faceset fail");
             }
             */
             //System.out.print(s2);
-   // }catch (Exception e) {
-    //	e.printStackTrace();
-		// TODO: handle exception
-	//}*/
-}
+            // }catch (Exception e) {
+             //	e.printStackTrace();
+                         // TODO: handle exception
+            //}*/
+    }
+            
+
+
+   
+    
     public static boolean AddFaceAPI(String facetok) {
     	connectAPI = new ConnectAPI();
     	HashMap<String, String> map = new HashMap<>();
@@ -103,7 +105,8 @@ public class App
         	e.printStackTrace();
     }
         return true;
-}
+    }
+    
     public static boolean setUpUserIdAPI(String facetok,String user_id) {
     	connectAPI = new ConnectAPI();
     	HashMap<String, String> map = new HashMap<>();
@@ -125,7 +128,7 @@ public class App
             return true;
         }catch(Exception e) {
         	e.printStackTrace();
-    }
+        }
         return true;
-}
+    }
 }

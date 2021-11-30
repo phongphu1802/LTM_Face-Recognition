@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
  * @author LAPTOPTOKYO
  */
 public class FrameDangKy extends javax.swing.JFrame {
-    DangKyController DangKy = new DangKyController("localhost",4606);
+    DangKyController DangKy = new DangKyController();
     /**
      * Creates new form FrameDangKy
      */
@@ -236,6 +236,7 @@ public class FrameDangKy extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel9MouseEntered
 
     private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
+        
         String strTaiKhoan, strMatKhau, strNhapLaiMatKhau, strHo, strTen, strNgaySinh, strKetQua;
         strTaiKhoan = jTextField1.getText();
         strHo = jTextField2.getText();
@@ -245,9 +246,9 @@ public class FrameDangKy extends javax.swing.JFrame {
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         strNgaySinh = ""+dateFormat.format(jDateChooser1.getDate());
         
-        System.out.println(strTaiKhoan+"#"+strMatKhau+"#"+strNhapLaiMatKhau+"#"+strHo+"#"+strTen+"#"+strNgaySinh+"#");
+//        System.out.println(strTaiKhoan+"#"+strMatKhau+"#"+strNhapLaiMatKhau+"#"+strHo+"#"+strTen+"#"+strNgaySinh+"#");
         
-        if(DangKy.DangKyController(strTaiKhoan, strMatKhau, strNhapLaiMatKhau, strHo, strTen, strNgaySinh).equals("Tài khoản đăng ký thành công.")){
+        if(DangKy.DangKyController("localhost",4606,strTaiKhoan, strMatKhau, strNhapLaiMatKhau, strHo, strTen, strNgaySinh).equals("Tài khoản đăng ký thành công.")){
             setVisible(false);
             FrameDangNhap dn = new FrameDangNhap();
             dn.setVisible(true);

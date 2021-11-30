@@ -50,19 +50,17 @@ public class DangKyController {
             us.setIdTK(Id_TK);
             us.setIdUser(Id_US);
             us.setLastName(lastName);
-            us.setNameUser(strUser);
+            us.setNameUser(userName);
             us.setDate_of_birth(date_Of_Birth);
             us.setStatus("1");
             User.insert(us);
-        }
-        else{
+            return "0";
+        }else{
            //Tài khoản đã tồn tại
            return "1";
         }
-        return "0";
     }
-    
-        
+       
     public static String doHashing(String pass){
         StringBuilder sb = new StringBuilder();
         try {

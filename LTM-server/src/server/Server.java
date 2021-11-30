@@ -1,5 +1,6 @@
 package server;
 
+import Controller.DangKyController;
 import Controller.DangNhapController;
 import ltm.server.AES;
 import ltm.server.RSA;
@@ -15,6 +16,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,6 +31,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,37 +66,38 @@ public class Server {
 	try {
             System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
 	    server = new ServerSocket(port);		
-                while(true){
-                    System.out.println("server running.....");	
-                    socket = server.accept();
-                    rsa = new RSA();
-                    aes = new AES();
-                   while(true) {
-                	   String cipherText=Request();
-                	   
-                	   encodeSecretKey=rsa.decrypt(cipherText, privateKey);
-                	   byte[] decodedKey = Base64.getDecoder().decode(encodeSecretKey);
-                	   key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-                	   System.out.println(key);
-                	   if(key!=null) {
-                		   break;
-                	   }
-                   }
-                   
-                	   switch(aes.decrypt(in.readLine(),key)){
-                       case "login":{
-                           Login();
-                           break;
-                       }
-                       case "Camera":{
-                           face_detect();
-                           break;
-                       }
-                   }
-                   
-                   
+            while(true){
+                System.out.println("server running.....");	
+                socket = server.accept();
+                rsa = new RSA();
+                aes = new AES();
+                while(true) {
+                    String cipherText=Request();
+                    encodeSecretKey=rsa.decrypt(cipherText, privateKey);
+                    byte[] decodedKey = Base64.getDecoder().decode(encodeSecretKey);
+                    key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+                    System.out.println(key);
+                    if(key!=null) {
+                        break;
+                    }
+                }
+                switch(aes.decrypt(in.readLine(),key)){
+                    case "login":{
+                        System.out.println("login");
+                        Login();
+                        break;
+                    }
+                    case "register":{
+                        System.out.println("register");
+                        Register();
+                        break;
+                    }
+                    case "Camera":{
+                        face_detect();
+                        break;
+                    }
+                }
                 socket.close();
-                
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -106,11 +111,12 @@ public class Server {
         return mat;
     }
     
-    public void Login(){
+    public void Login() throws IOException{
         JSONParser parser = new JSONParser();
         JSONObject object = null;
         try {
-            object = (JSONObject)parser.parse(Request());
+            String rse=in.readLine();
+            object = (JSONObject)parser.parse(aes.decrypt(rse,key));
         } catch (ParseException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -121,18 +127,53 @@ public class Server {
         try {
             switch(kiemtra.DangNhapController(User, Pass)){
                 case "1":{
-                    Reply("1");
+                    Reply(aes.encrypt("1"));
                     break;
                 }
                 case "2":{
-                    Reply("2");
+                    Reply(aes.encrypt("2"));
                     break;
                 }
                 case "3":{
                     //Trả về thông báo đăng nhập thành công
-                    Reply("3");
+                    Reply(aes.encrypt("3"));
                     //Trả về thông tin người dùng
-                    Reply(kiemtra.Select_User().toString());
+                    Reply(aes.encrypt(kiemtra.Select_User().toString()));
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void Register(){
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject object = null;
+            try {
+                String rse=in.readLine();
+                object = (JSONObject) parser.parse(aes.decrypt(rse,key));
+                System.out.println(object.toString());
+            } catch (ParseException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            //Tách User Pass khỏi Json
+            String user = (String) object.get("user");
+            String pass = (String) object.get("pass");
+            String lastName = (String) object.get("lastname");
+            String firstName = (String) object.get("firstname");
+            String date_Of_Birth = (String) object.get("date_of_birth");
+//            System.out.println(user+"#"+pass+"#"+lastName+"#"+firstName+"#"+date_Of_Birth);
+            
+            DangKyController kiemtra = new DangKyController();
+            switch(kiemtra.DangKyController(user, pass, lastName, firstName, date_Of_Birth)){
+                case "0":{
+                    Reply(aes.encrypt("0"));
+                    break;
+                }
+                case "1":{
+                    Reply(aes.encrypt("1"));
                     break;
                 }
             }
@@ -154,7 +195,7 @@ public class Server {
                 ImageIO.write(mat, "jpg", byteArrayOutputStream);
                 if(byteArrayOutputStream!=null) { 
                 	String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
-                	 String reply = aes.encrypt(byteImage);
+                	String reply = aes.encrypt(byteImage);
                     Reply(reply);
                 }
                
@@ -172,7 +213,7 @@ public class Server {
     public String Request(){
         String request="";
         try {
-        	 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             request=in.readLine();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -182,9 +223,8 @@ public class Server {
     
     //Thực thi gửi request về client
     public void Reply(String stResult){
-        BufferedWriter out = null;
         try {
-        	 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             out.write(stResult);
             out.newLine();
             out.flush();
@@ -195,5 +235,50 @@ public class Server {
     public String Regconize() {
     	
     	return null;
+    }
+    
+    //Dọc key Publickey
+    public String ReadPublicKey(){
+        FileInputStream fileInputStream = null;
+        String spilit="";
+        try {
+            fileInputStream = new FileInputStream("src\\testrsa\\publickey.txt");
+            Scanner scanner = new Scanner(fileInputStream);
+            
+            while (scanner.hasNextLine()) {
+                spilit+=scanner.nextLine();
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                fileInputStream.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return spilit;
+    }
+    
+    public String ReadPrivateKey(){
+        FileInputStream fileInputStream = null;
+        String spilit="";
+        try {
+            fileInputStream = new FileInputStream("src\\testrsa\\privatekey.txt");
+            Scanner scanner = new Scanner(fileInputStream);
+            
+            while (scanner.hasNextLine()) {
+                spilit+=scanner.nextLine();
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                fileInputStream.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return spilit;
     }
 }

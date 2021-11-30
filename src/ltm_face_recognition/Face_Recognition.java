@@ -1,4 +1,4 @@
-/*
+ /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -85,7 +85,7 @@ public class Face_Recognition extends javax.swing.JFrame {
     public Socket ConnectServer(String host,int port) {
     	try {
             socket = new Socket(host,port);
-             rsa = new RSA();
+            rsa = new RSA();
             aes = new AES();
             return socket;
 	}catch(UnknownHostException ex) {
@@ -288,21 +288,21 @@ public class Face_Recognition extends javax.swing.JFrame {
     	//connect to server
         socket = ConnectServer("localhost", 4606);  
         if(socket!=null&&socket.isConnected()) {
-        	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        	BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        	//encrypt
-        	SecretKey secretKey = aes.generatorKey();
-        	String cipherText1 = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-        	String RSAEncrypt =	Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
-        	//send secret key
-        	writer.write(RSAEncrypt);
-        	writer.newLine();
-        	writer.flush();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            //encrypt
+            SecretKey secretKey = aes.generatorKey();
+            String cipherText1 = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+            String RSAEncrypt =	Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
+            //send secret key
+            writer.write(RSAEncrypt);
+            writer.newLine();
+            writer.flush();
         	
-        	//send func keyword by secretKey
-        	writer.write(aes.encrypt("Camera"));
-        	writer.newLine();
-        	writer.flush();
+            //send func keyword by secretKey
+            writer.write(aes.encrypt("Camera"));
+            writer.newLine();
+            writer.flush();
             byte[] imageData;
             ImageIcon icon;
             //get Image from camera
@@ -335,7 +335,7 @@ public class Face_Recognition extends javax.swing.JFrame {
                 }
             
             }     
-        socket.close();
+            socket.close();
         }else {
             this.setVisible(false);
         }       

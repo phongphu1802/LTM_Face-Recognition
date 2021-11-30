@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @author LAPTOPTOKYO
  */
 public class TaiKhoanModel {
-    static ArrayList<TaiKhoanDTO> arTK=new ArrayList<TaiKhoanDTO>();
+    static ArrayList<TaiKhoanDTO> arTK;
     MyConnectUnit connect;
     ResultSet rsTaiKhoan;
     public TaiKhoanModel(){
@@ -32,6 +32,7 @@ public class TaiKhoanModel {
     }
     //Tìm thông tin tài khoản khi biết ten đăng nhap
     public int select_Count() throws Exception{
+        arTK=new ArrayList<TaiKhoanDTO>();
         rsTaiKhoan=this.connect.Select("TAIKHOAN");
         //Lấy thông tin table tai khoản
         while(rsTaiKhoan.next()){
@@ -46,16 +47,19 @@ public class TaiKhoanModel {
     }
     //Tìm thông tin tài khoản khi biết ten đăng nhap
     public ArrayList taiKhoan(String strTenDangNhap) throws Exception{
+        arTK=new ArrayList<TaiKhoanDTO>();
         String userkt="UserName ='"+strTenDangNhap+"'";
         rsTaiKhoan=this.connect.Select("TAIKHOAN", userkt);
         //Lấy thông tin table tai khoản
-        while(rsTaiKhoan.next()){
-            TaiKhoanDTO nv=new TaiKhoanDTO();
-            nv.setId_TK(rsTaiKhoan.getString(1));
-            nv.setStrUser(rsTaiKhoan.getString(2));
-            nv.setStrPass(rsTaiKhoan.getString(3));
-            nv.setStrStatus(rsTaiKhoan.getString(4));
-            arTK.add(nv);
+        if (rsTaiKhoan.getRow()!=0) {
+            while(rsTaiKhoan.next()){
+                TaiKhoanDTO nv=new TaiKhoanDTO();
+                nv.setId_TK(rsTaiKhoan.getString(1));
+                nv.setStrUser(rsTaiKhoan.getString(2));
+                nv.setStrPass(rsTaiKhoan.getString(3));
+                nv.setStrStatus(rsTaiKhoan.getString(4));
+                arTK.add(nv);
+            }   
         }
         return arTK;
     }

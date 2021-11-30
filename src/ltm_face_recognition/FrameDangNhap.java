@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
  * @author LAPTOPTOKYO
  */
 public class FrameDangNhap extends javax.swing.JFrame {
-    DangNhapController DangNhap = new DangNhapController("localhost",4606);
+    DangNhapController DangNhap = new DangNhapController();
     /**
      * Creates new form FrameDangNhap
      */
@@ -180,7 +180,7 @@ public class FrameDangNhap extends javax.swing.JFrame {
         strMatKhau = jPasswordField1.getText();
         try {
             //System.out.println(strTaiKhoan+"-"+strMatKhau);
-            strKetQua = DangNhap.DangNhapController(strTaiKhoan, strMatKhau);
+            strKetQua = DangNhap.DangNhapController("localhost",4606,strTaiKhoan, strMatKhau);
             //Kiểm tra đăng nhập thành công thì tắt frame đăng nhập
             if(strKetQua=="Đăng nhập thành công"){
                 setVisible(false);

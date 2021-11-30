@@ -72,8 +72,7 @@ public class UserModel {
             map.put("Nameuser", arUser.getNameUser());
             map.put("Date_of_birth", arUser.getDate_of_birth());
             map.put("Status", arUser.getStatus());
-            System.out.println(arUser.getDate_of_birth());
-//            this.connect.Insert("USER_TK", map);
+            this.connect.Insert("USER_TK", map);
         } catch (Exception ex) {
             Logger.getLogger(UserModel.class.getName()).log(Level.SEVERE, null, ex);
         }

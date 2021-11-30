@@ -32,7 +32,7 @@ public class MyConnectUnit {
         //Đưa câu lệnh order vào trong câu query 
         this.AddOrderBy(query,OrderBy);
         //chèn ký tự ';' vào cuối dòng câu lệnh để cách dòng
-        query.append(";");
+        query.append("");
         //Thực thi câu query và trả kêt quả ra ngoài
         System.out.println(query);
         return this.connect.executeQuery(query.toString());
@@ -88,11 +88,11 @@ public class MyConnectUnit {
         valueInsert = valueInsert.delete(valueInsert.length()-1,valueInsert.length());
         
         //Đưa giá trị của cột vào câu query
-        query.append(") VALUE("+valueInsert.toString()+")");
+        query.append(") VALUES ("+valueInsert.toString()+")");
         
         // Chèn ký tự ';' vào cuối dòng lệnh để cách các câu
         query.append(";");
-        
+        System.out.println(query);
         //Thực thi câu query và trả kết quả ra ngoài
         return this.connect.executeUpdate(query.toString())>0;
     }
