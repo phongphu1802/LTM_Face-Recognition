@@ -59,6 +59,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 
 import Cipher.RSA;
 import Cipher.AES;
+import javax.swing.Icon;
 
 /**
  *
@@ -107,7 +108,31 @@ public class Face_Recognition extends javax.swing.JFrame {
         jLabel2.setText("Tên người dùng: "+this.LastName+" "+this.NameUser);
         //jLabel4.setText("Ngày sinh: "+this.Date_of_birth);
     }
-
+    
+    // can chinh image
+    public Icon loadimage_processing(String linkImage, int k, int m) {/*linkImage là tên icon, k kích thước chiều rộng mình muốn,m chiều dài và hàm này trả về giá trị là 1 icon.*/
+        try {
+            BufferedImage image = ImageIO.read(new File(linkImage));//đọc ảnh dùng BufferedImage
+            int x = k;
+            int y = m;
+            int ix = image.getWidth();
+            int iy = image.getHeight();
+            int dx = 0, dy = 0;
+            if (x / y > ix / iy) {
+                dy = y;
+                dx = dy * ix / iy;
+            } else {
+                dx = x;
+                dy = dx * iy / ix;
+            }
+            return new ImageIcon(image.getScaledInstance(dx, dy,
+                    image.SCALE_SMOOTH));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -124,6 +149,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -163,11 +189,23 @@ public class Face_Recognition extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         jLabel4.setText("Ngày sinh: 18/02/2000");
 
+        jButton4.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jButton4.setText("Nhận điện ảnh");
+        jButton4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton4MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(182, 182, 182)
+                .addComponent(jLabel1)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(77, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -184,11 +222,10 @@ public class Face_Recognition extends javax.swing.JFrame {
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(125, 125, 125))))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(182, 182, 182)
-                .addComponent(jLabel1)
-                .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(125, 125, 125))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(258, 258, 258))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -196,7 +233,7 @@ public class Face_Recognition extends javax.swing.JFrame {
                 .addGap(22, 22, 22)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -206,7 +243,9 @@ public class Face_Recognition extends javax.swing.JFrame {
                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(58, 58, 58)
                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 513, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(68, 68, 68))
+                .addGap(18, 18, 18)
+                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
         );
 
         pack();
@@ -214,7 +253,10 @@ public class Face_Recognition extends javax.swing.JFrame {
     
     //btn Lấy ảnh có trong máy
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        // TODO add your handling code here:
+        GetImage gI = new GetImage();
+        int x = jLabel3.getWidth();
+        int y = jLabel3.getHeight();
+        jLabel3.setIcon(loadimage_processing(gI.getImage(),x,y));
     }//GEN-LAST:event_jButton1MouseClicked
     
     //btn Mở máy ảnh
@@ -281,8 +323,21 @@ public class Face_Recognition extends javax.swing.JFrame {
     
     //btn Thêm nhận dạng mới
     private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
-        // TODO add your handling code here:
+        if(jLabel3.getIcon()==null){
+            JOptionPane.showMessageDialog(null,"Bạn cần chụp ảnh hoặc thêm ảnh từ máy tính để thêm nhận dạng mới.");
+        }else{
+            
+        }
     }//GEN-LAST:event_jButton3MouseClicked
+    
+    //btn Nhận dạng khuôn mặt
+    private void jButton4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton4MouseClicked
+        if(jLabel3.getIcon()==null){
+            JOptionPane.showMessageDialog(null,"Bạn cần chụp ảnh hoặc thêm ảnh từ máy tính để kiểm tra.");
+        }else{
+            
+        }
+    }//GEN-LAST:event_jButton4MouseClicked
     
     public void loadAnh(Mat image) throws IOException, InterruptedException, ParseException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException{
     	//connect to server
@@ -383,6 +438,7 @@ public class Face_Recognition extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
