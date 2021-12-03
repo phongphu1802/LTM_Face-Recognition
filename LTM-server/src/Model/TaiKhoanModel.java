@@ -48,19 +48,17 @@ public class TaiKhoanModel {
     //Tìm thông tin tài khoản khi biết ten đăng nhap
     public ArrayList taiKhoan(String strTenDangNhap) throws Exception{
         arTK=new ArrayList<TaiKhoanDTO>();
-        String userkt="UserName ='"+strTenDangNhap+"'";
+        String userkt="UserName = '"+strTenDangNhap+"'";
         rsTaiKhoan=this.connect.Select("TAIKHOAN", userkt);
         //Lấy thông tin table tai khoản
-        if (rsTaiKhoan.getRow()!=0) {
-            while(rsTaiKhoan.next()){
-                TaiKhoanDTO nv=new TaiKhoanDTO();
-                nv.setId_TK(rsTaiKhoan.getString(1));
-                nv.setStrUser(rsTaiKhoan.getString(2));
-                nv.setStrPass(rsTaiKhoan.getString(3));
-                nv.setStrStatus(rsTaiKhoan.getString(4));
-                arTK.add(nv);
-            }   
-        }
+        while(rsTaiKhoan.next()){
+            TaiKhoanDTO nv=new TaiKhoanDTO();
+            nv.setId_TK(rsTaiKhoan.getString(1));
+            nv.setStrUser(rsTaiKhoan.getString(2));
+            nv.setStrPass(rsTaiKhoan.getString(3));
+            nv.setStrStatus(rsTaiKhoan.getString(4));
+            arTK.add(nv);
+        }   
         return arTK;
     }
     //Insert dữ liệu vào database

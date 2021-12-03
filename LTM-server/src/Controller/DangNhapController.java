@@ -26,12 +26,13 @@ import server.Server;
  * @author LAPTOPTOKYO
  */
 public class DangNhapController {
-    static ArrayList<TaiKhoanDTO> arTK=new ArrayList<TaiKhoanDTO>();
+    static ArrayList<TaiKhoanDTO> arTK;
     static ArrayList<UserDTO> arUser=new ArrayList<UserDTO>();
     TaiKhoanModel TKDangNhap = new TaiKhoanModel();
     UserModel User = new UserModel();
     public String DangNhapController(String strTaiKhoan,String strMatKhau) throws Exception
     {
+        arTK=new ArrayList<TaiKhoanDTO>();
         //Tìm thông tin tài khoản khi biết tên Tài khoản
         arTK=TKDangNhap.taiKhoan(strTaiKhoan);
         //Kiểm tra xem Row có rỗng hay không nếu rỗng trả về 0 nghĩa là tài khoản không tồn tại

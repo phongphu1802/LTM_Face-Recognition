@@ -91,7 +91,7 @@ public class MyConnectUnit {
         query.append(") VALUES ("+valueInsert.toString()+")");
         
         // Chèn ký tự ';' vào cuối dòng lệnh để cách các câu
-        query.append(";");
+        query.append("");
         System.out.println(query);
         //Thực thi câu query và trả kết quả ra ngoài
         return this.connect.executeUpdate(query.toString())>0;
