@@ -33,6 +33,7 @@ import java.util.Date;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -64,8 +65,13 @@ public class Camera extends JFrame{
     private VideoCapture capture;
     private Mat image;
     private Face_Recognition fa;
+    private SecretKey secretKey;
     private boolean clicked = false;
-    public Camera(){
+    private String id="";
+   
+    public Camera(SecretKey secretKey,String id){
+    	this.id = id;
+    	this.secretKey = secretKey;
         setLayout(null);    
         cameraScreen = new JLabel();
         cameraScreen.setBounds(0, 0, 640, 480);
@@ -130,7 +136,7 @@ public class Camera extends JFrame{
     	                          dout.close();
     	              	        dis.close();
     	              	        socket.close();*/
-                                           fa= new Face_Recognition();
+                                           fa= new Face_Recognition(this.secretKey,id);
                                             fa.loadAnh(image);
                                             clicked = false;
                                             setVisible(false);

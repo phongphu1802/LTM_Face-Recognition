@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.logging.Level;
@@ -48,6 +49,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.opencv.core.Core;
@@ -73,35 +75,35 @@ public class Face_Recognition extends javax.swing.JFrame {
     private RSA rsa;
     private AES aes;
     Camera camera;
+    private String id="";
     private Socket socket;
+    private SecretKey secretKey;
+    private BufferedImage staticImg;
     
     /**
      * Creates new form Face_Recognition
      */
+    public Face_Recognition(SecretKey secretKey,String id) throws IOException {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        rsa = new RSA();
+        aes = new AES();
+        aes.setKey(secretKey);
+        this.id = id;
+        System.out.println(this.id);
+        this.secretKey = secretKey;
+        System.out.println("key nhan dc "+this.secretKey);
+        initComponents();
+    }
     public Face_Recognition() throws IOException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         initComponents();
-    }
-
-    public Socket ConnectServer(String host,int port) {
-    	try {
-            socket = new Socket(host,port);
-            rsa = new RSA();
-            aes = new AES();
-            return socket;
-	}catch(UnknownHostException ex) {
-            ex.printStackTrace();
-	}catch (IOException e) {
-            // TODO: handle exception
-            JOptionPane.showMessageDialog(null, "Server is busy right now");
-	}
-    	return null;
     }
     public void disconnectServer() throws IOException {
     	socket.close();
     }
     
-    public void Start(String LastName, String NameUser, String Date_of_birth){
+    public void Start(String id,String LastName, String NameUser, String Date_of_birth){
+    	this.id = id;
         this.LastName=LastName;
         this.NameUser=NameUser;
         this.Date_of_birth=Date_of_birth;
@@ -113,6 +115,7 @@ public class Face_Recognition extends javax.swing.JFrame {
     public Icon loadimage_processing(String linkImage, int k, int m) {/*linkImage là tên icon, k kích thước chiều rộng mình muốn,m chiều dài và hàm này trả về giá trị là 1 icon.*/
         try {
             BufferedImage image = ImageIO.read(new File(linkImage));//đọc ảnh dùng BufferedImage
+            this.staticImg = image;
             int x = k;
             int y = m;
             int ix = image.getWidth();
@@ -266,7 +269,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-		camera = new Camera();
+		camera = new Camera(secretKey,id);
                 new Thread(new Runnable(){
                     @Override
                     public void run(){
@@ -335,26 +338,59 @@ public class Face_Recognition extends javax.swing.JFrame {
         if(jLabel3.getIcon()==null){
             JOptionPane.showMessageDialog(null,"Bạn cần chụp ảnh hoặc thêm ảnh từ máy tính để kiểm tra.");
         }else{
-            
+        	 try {
+        		 socket = new Socket("localhost",4606);
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				  writer.write(aes.encrypt1("face regconize",this.secretKey));
+		            writer.newLine();
+		            writer.flush();
+		            
+		            writer.write(aes.encrypt1(id, this.secretKey));
+		            writer.newLine();
+		            writer.flush();
+		            
+		            System.out.println("da gui id"+id);
+		            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		            ImageIO.write(this.staticImg, "jpg", byteArrayOutputStream);//image to byte[]
+		            String byteImage =Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());//encode image to string
+		            String cipherText2 =aes.encrypt1(byteImage,this.secretKey);
+		            //send image 
+		            writer.write(cipherText2);
+		            writer.newLine();
+		            writer.flush();
+		            System.out.println("da gui anh");
+		            ArrayList<String> result = new ArrayList<>();
+		            while(true) {
+		            	String response = reader.readLine();
+		            	if(aes.decrypt(response, this.secretKey).equalsIgnoreCase("END")) {
+		            		break;
+		            	}else {
+		            		result.add(aes.decrypt(response, secretKey));
+		            		
+		            	}
+		            }
+		            Result_Image rs = new Result_Image(id, staticImg, result);  	
+            		rs.setVisible(true);
+		            socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+             
         }
     }//GEN-LAST:event_jButton4MouseClicked
     
     public void loadAnh(Mat image) throws IOException, InterruptedException, ParseException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException{
-    	//connect to server
-        socket = ConnectServer("localhost", 4606);  
+    	//connect to server 
+    	socket = new Socket("localhost",4606);
         if(socket!=null&&socket.isConnected()) {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             //encrypt
-            SecretKey secretKey = aes.generatorKey();
-            String cipherText1 = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-            String RSAEncrypt =	Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
-            //send secret key
-            writer.write(RSAEncrypt);
-            writer.newLine();
-            writer.flush();
         	
             //send func keyword by secretKey
+            System.out.println("key load"+this.secretKey);
             writer.write(aes.encrypt("Camera"));
             writer.newLine();
             writer.flush();
@@ -365,7 +401,7 @@ public class Face_Recognition extends javax.swing.JFrame {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ImageIO.write(bImage, "jpg", byteArrayOutputStream);//image to byte[]
             String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());//encode image to string
-            String cipherText2 =aes.encrypt(byteImage);
+            String cipherText2 =aes.encrypt1(byteImage, this.secretKey);
             //send image 
             writer.write(cipherText2);
             writer.newLine();

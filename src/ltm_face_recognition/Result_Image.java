@@ -5,7 +5,24 @@
  */
 package ltm_face_recognition;
 
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -16,9 +33,33 @@ public class Result_Image extends javax.swing.JFrame {
     /**
      * Creates new form Result_Image
      */
+	public ArrayList<String> result;
+	private String userID="";
+	private BufferedImage buff;
+	DefaultTableModel dtm=new DefaultTableModel(new String [] {
+            "Ảnh cần so sánh", "Tên người nhận điện", "Tỉ lệ"
+        },0);
     public Result_Image() {
         initComponents();
-        Set_Size_Column_Table();
+        //Set_Size_Column_Table();
+    }
+    public Result_Image(String userID,BufferedImage buff,ArrayList<String> result) {
+    	 initComponents();
+    	this.userID = userID;
+    	this.buff = buff;
+    	this.result = result;
+    	
+    	 ImageIcon icon = new ImageIcon(buff); 
+    	 Image img = icon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+    	 jLabel1 = new JLabel();
+    	 jLabel1.setIcon(icon);
+    	 try {
+			setResult();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     /**
@@ -39,22 +80,16 @@ public class Result_Image extends javax.swing.JFrame {
         setTitle("Kết quả sau khi kiểm tra");
         setBackground(new java.awt.Color(255, 255, 255));
         setBounds(new java.awt.Rectangle(450, 200, 800, 600));
-
-        jLabel1.setText("Ảnh cần kiểm tra");
-
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel2.setText("Kết quả khi nhận điện khuôn mặt");
 
         jTable1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+               
             },
             new String [] {
-                "Ảnh cần so sánh", "Tên người nhận điện", "Tỉ lệ"
+               "null"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -91,11 +126,60 @@ public class Result_Image extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-    public void Set_Size_Column_Table(){
+   /* public void Set_Size_Column_Table(){
         jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         jTable1.getColumnModel().getColumn(0).setPreferredWidth(450);
         jTable1.getColumnModel().getColumn(1).setPreferredWidth(400);
         jTable1.getColumnModel().getColumn(2).setPreferredWidth(144);
+    }*/
+    public void setResult() throws IOException {
+    	DefaultTableModel dtm=(DefaultTableModel)jTable1.getModel();
+    	Object[] Headers = new Object[]{ "Ảnh cần so sánh", "Tên người nhận điện", "Tỉ lệ"};
+    	
+    	dtm.setColumnIdentifiers(Headers);
+    	jTable1.getColumn("Ảnh cần so sánh").setCellRenderer(new CellRenderer());
+    	
+    	JSONObject object1=null;
+        JSONParser parser = new JSONParser();
+    	for(String s:this.result) {
+    		try {
+				object1 = (JSONObject)parser.parse(s);
+				String name = (String)object1.get("name");
+				String confidence = (String)object1.get("confidence");
+				String imageName = (String)object1.get("image");
+				File e = new File("C:\\Users\\LENOVO\\eclipse-workspace\\ltm\\folder\\"+imageName);
+				 JLabel imageLabel = new JLabel();
+				ImageIcon icon = new ImageIcon(ImageIO.read(e));
+				Image image = icon.getImage().getScaledInstance(160,160, Image.SCALE_SMOOTH);
+				imageLabel.setIcon(new ImageIcon(image));
+				Object[] obj  = {imageLabel,name,confidence};	
+				dtm.addRow(obj);
+    		
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		
+    	}
+    	System.out.println(dtm.getRowCount());
+    	dtm.fireTableDataChanged();
+    	
+    }
+    class CellRenderer implements TableCellRenderer {
+    	 
+        @Override
+        public Component getTableCellRendererComponent(JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column) {
+ 
+            jTable1.setRowHeight(160);
+ 
+            return (Component) value;
+        }
+ 
     }
     /**
      * @param args the command line arguments
@@ -138,4 +222,5 @@ public class Result_Image extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
+    
 }

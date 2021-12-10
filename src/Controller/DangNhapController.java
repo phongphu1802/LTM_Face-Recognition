@@ -78,6 +78,7 @@ public class DangNhapController {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         	//encrypt
         	secretKey = aes.generatorKey();
+        	 System.out.println(secretKey);
         	String cipherText1 = Base64.getEncoder().encodeToString(secretKey.getEncoded());
         	String RSAEncrypt = Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
         	//send secret key
@@ -113,16 +114,19 @@ public class DangNhapController {
                     case "3":{
                         JSONObject object1=null;
                         JSONParser parser = new JSONParser();
+                        String id="";
                         try {
                             object1 = (JSONObject) parser.parse(aes.decrypt(in.readLine(), secretKey));
-                            System.out.println(object1.get("LastName"));
-                            System.out.println(object1.get("NameUser"));
-                            //System.out.println(object1.get("Date_of_birth"));
+                            System.out.println((String)object1.get("LastName"));
+                            System.out.println((String)object1.get("NameUser"));
+                            System.out.println((String)object1.get("Date_of_birth"));
+                            id=(String)object1.get("userID");
+                            
                         } catch (Exception ex) {
                             Logger.getLogger(DangNhapController.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        Face_Recognition face = new Face_Recognition();
-                        face.Start((String) object1.get("LastName"), (String) object1.get("NameUser"), (String) object1.get("Date_of_birth"));
+                        Face_Recognition face = new Face_Recognition(secretKey,id);
+                        face.Start(id,(String) object1.get("LastName"), (String) object1.get("NameUser"), (String) object1.get("Date_of_birth"));
                         face.setVisible(true);
                         Result = "Đăng nhập thành công";
                         break;
