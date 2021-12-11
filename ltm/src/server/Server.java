@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,15 +64,24 @@ public class Server {
     private AES aes;
     private SecretKey key;
     private boolean check=true;
-   
+    private String s ="";
+    
     public Server(int port) {  	   	
 	try {
+		ExecutorService executor = Executors.newFixedThreadPool(10);
             System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
 	    server = new ServerSocket(port);		
             while(true){
                 System.out.println("server running.....");	
                 socket = server.accept();
-                rsa = new RSA();
+		           	 String cipherText=Request();
+		                encodeSecretKey=rsa.decrypt(cipherText, privateKey);
+		                byte[] decodedKey = Base64.getDecoder().decode(encodeSecretKey);
+		                this.key = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+                socket.getInetAddress().getHostName();
+                WorkerThread handler = new WorkerThread(socket,this.key);
+				executor.execute(handler);
+               /* rsa = new RSA();
                 aes = new AES();
                 while(this.key==null) {
                     	 String cipherText=Request();
@@ -99,15 +110,21 @@ public class Server {
                         	face_reg();
                         	break;
                         }
+                        case "Static":{
+                        	 face_detect();
+                             break;
+                        }
                     
                 		}
                 	
             
                 
                 socket.close();
+                */
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+
         }		
     }
 	

@@ -41,7 +41,7 @@ public class RSA {
 			
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Lỗi tạo khoá");
+			e.printStackTrace();
 		}
 		
 	}
@@ -57,7 +57,7 @@ public class RSA {
 			
 		}catch (Exception e) {
 			// TODO: handle exception
-			System.out.println("Lỗi tạo public key");
+			e.printStackTrace();
 		}
 		return pubKey;
 	}
@@ -85,12 +85,12 @@ public class RSA {
         try {
             keyFactory = KeyFactory.getInstance("RSA");
         } catch (NoSuchAlgorithmException e) {
-           System.out.println("Lỗi tạo KeyFactory");
+            e.printStackTrace();
         }
         try {
             privateKey = keyFactory.generatePrivate(keySpec);
         } catch (InvalidKeySpecException e) {
-            System.out.println("Lỗi tạo privateKey");
+            e.printStackTrace();
         }
         return privateKey;
     }

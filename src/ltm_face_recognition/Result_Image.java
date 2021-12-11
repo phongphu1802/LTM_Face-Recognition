@@ -10,10 +10,13 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
 
+import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -36,6 +39,8 @@ public class Result_Image extends javax.swing.JFrame {
 	public ArrayList<String> result;
 	private String userID="";
 	private BufferedImage buff;
+	private Socket socket;
+	private SecretKey key;
 	DefaultTableModel dtm=new DefaultTableModel(new String [] {
             "Ảnh cần so sánh", "Tên người nhận điện", "Tỉ lệ"
         },0);
@@ -43,11 +48,13 @@ public class Result_Image extends javax.swing.JFrame {
         initComponents();
         //Set_Size_Column_Table();
     }
-    public Result_Image(String userID,BufferedImage buff,ArrayList<String> result) {
+    public Result_Image(Socket socket,String userID,BufferedImage buff,ArrayList<String> result,SecretKey key) {
+    	this.socket = socket;
     	 initComponents();
     	this.userID = userID;
     	this.buff = buff;
     	this.result = result;
+    	this.key = key;
     	
     	 ImageIcon icon = new ImageIcon(buff); 
     	 Image img = icon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
@@ -77,6 +84,20 @@ public class Result_Image extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+            	try {
+					Face_Recognition face = new Face_Recognition(socket, key, userID);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+                //MainPage m = new MainPage();
+                //m.setVisible(true);
+                e.getWindow().dispose();
+            }
+        });
         setTitle("Kết quả sau khi kiểm tra");
         setBackground(new java.awt.Color(255, 255, 255));
         setBounds(new java.awt.Rectangle(450, 200, 800, 600));
@@ -181,6 +202,7 @@ public class Result_Image extends javax.swing.JFrame {
         }
  
     }
+
     /**
      * @param args the command line arguments
      */
@@ -196,7 +218,9 @@ public class Result_Image extends javax.swing.JFrame {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
+                
             }
+            
         } catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(Result_Image.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
@@ -212,8 +236,13 @@ public class Result_Image extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Result_Image().setVisible(true);
+               
             }
+            
+           
+            
         });
+      
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

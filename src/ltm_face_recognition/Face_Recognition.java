@@ -83,8 +83,9 @@ public class Face_Recognition extends javax.swing.JFrame {
     /**
      * Creates new form Face_Recognition
      */
-    public Face_Recognition(SecretKey secretKey,String id) throws IOException {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    public Face_Recognition(Socket socket,SecretKey secretKey,String id) throws IOException {
+        this.socket = socket;
+    	System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         rsa = new RSA();
         aes = new AES();
         aes.setKey(secretKey);
@@ -176,7 +177,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         });
 
         jButton3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jButton3.setText("Thêm nhận dạng mới");
+        jButton3.setText("Nhận diện ảnh tĩnh");
         jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton3MouseClicked(evt);
@@ -193,7 +194,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         jLabel4.setText("Ngày sinh: 18/02/2000");
 
         jButton4.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jButton4.setText("Nhận điện ảnh");
+        jButton4.setText("Nhận diện khuôn mặt");
         jButton4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton4MouseClicked(evt);
@@ -269,7 +270,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-		camera = new Camera(secretKey,id);
+		camera = new Camera(socket,secretKey,id);
                 new Thread(new Runnable(){
                     @Override
                     public void run(){
@@ -326,11 +327,61 @@ public class Face_Recognition extends javax.swing.JFrame {
     
     //btn Thêm nhận dạng mới
     private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
-        if(jLabel3.getIcon()==null){
-            JOptionPane.showMessageDialog(null,"Bạn cần chụp ảnh hoặc thêm ảnh từ máy tính để thêm nhận dạng mới.");
-        }else{
-            
-        }
+      
+   
+        
+        	GetImage getImage= new GetImage();
+        	 try {
+				BufferedImage image = ImageIO.read(new File(getImage.getImage()));
+		        if(socket!=null&&socket.isConnected()) {
+		            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		            //encrypt
+		        	
+		            //send func keyword by secretKey
+
+		            writer.write(aes.encrypt("Static"));
+		            writer.newLine();
+		            writer.flush();
+		            byte[] imageData;
+		            ImageIcon icon;
+		            
+		            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		            ImageIO.write(image, "jpg", byteArrayOutputStream);//image to byte[]
+		            String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());//encode image to string
+		            String cipherText2 =aes.encrypt1(byteImage, this.secretKey);
+		            //send image 
+		            writer.write(cipherText2);
+		            writer.newLine();
+		            writer.flush();
+		            BufferedImage bf;
+		            boolean c = true;
+		            while(c){
+		            	String line = reader.readLine();
+		                //add image receive to bufferimage
+		            	String plainText = aes.decrypt(line, secretKey);
+		                bf= ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(plainText)));
+//		                System.out.println(bf.toString());
+		                if(bf!=null){
+		                    Mat m = bufferedImageToMat(bf);
+		                    final MatOfByte buf2 = new MatOfByte();
+		                    Imgcodecs.imencode(".jpg", m, buf2);
+		                    imageData = buf2.toArray();
+		                    icon = new ImageIcon(imageData);
+		                    jLabel3.setIcon(icon);
+		                    setVisible(true);
+		                    c=false;
+		                }
+		            
+		            }     
+		        }else {
+		            this.setVisible(false);
+		        }       
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        
     }//GEN-LAST:event_jButton3MouseClicked
     
     //btn Nhận dạng khuôn mặt
@@ -339,7 +390,6 @@ public class Face_Recognition extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null,"Bạn cần chụp ảnh hoặc thêm ảnh từ máy tính để kiểm tra.");
         }else{
         	 try {
-        		 socket = new Socket("localhost",4606);
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				  writer.write(aes.encrypt1("face regconize",this.secretKey));
@@ -370,9 +420,9 @@ public class Face_Recognition extends javax.swing.JFrame {
 		            		
 		            	}
 		            }
-		            Result_Image rs = new Result_Image(id, staticImg, result);  	
+		            Result_Image rs = new Result_Image(socket,id, staticImg, result,secretKey);  	
             		rs.setVisible(true);
-		            socket.close();
+            		this.setVisible(false);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -383,7 +433,6 @@ public class Face_Recognition extends javax.swing.JFrame {
     
     public void loadAnh(Mat image) throws IOException, InterruptedException, ParseException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException{
     	//connect to server 
-    	socket = new Socket("localhost",4606);
         if(socket!=null&&socket.isConnected()) {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -426,7 +475,6 @@ public class Face_Recognition extends javax.swing.JFrame {
                 }
             
             }     
-            socket.close();
         }else {
             this.setVisible(false);
         }       

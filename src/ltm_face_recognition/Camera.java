@@ -68,8 +68,10 @@ public class Camera extends JFrame{
     private SecretKey secretKey;
     private boolean clicked = false;
     private String id="";
+    private Socket socket;
    
-    public Camera(SecretKey secretKey,String id){
+    public Camera(Socket socket,SecretKey secretKey,String id){
+    	this.socket = socket;
     	this.id = id;
     	this.secretKey = secretKey;
         setLayout(null);    
@@ -136,7 +138,7 @@ public class Camera extends JFrame{
     	                          dout.close();
     	              	        dis.close();
     	              	        socket.close();*/
-                                           fa= new Face_Recognition(this.secretKey,id);
+                                           fa= new Face_Recognition(this.socket,this.secretKey,id);
                                             fa.loadAnh(image);
                                             clicked = false;
                                             setVisible(false);

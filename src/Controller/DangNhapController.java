@@ -125,7 +125,7 @@ public class DangNhapController {
                         } catch (Exception ex) {
                             Logger.getLogger(DangNhapController.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        Face_Recognition face = new Face_Recognition(secretKey,id);
+                        Face_Recognition face = new Face_Recognition(socket,secretKey,id);
                         face.Start(id,(String) object1.get("LastName"), (String) object1.get("NameUser"), (String) object1.get("Date_of_birth"));
                         face.setVisible(true);
                         Result = "Đăng nhập thành công";
@@ -133,7 +133,7 @@ public class DangNhapController {
                     }
                 }
             }
-            disconnectServer();
+           // disconnectServer();
         }catch(Exception e){
             System.err.println(e);
         }
