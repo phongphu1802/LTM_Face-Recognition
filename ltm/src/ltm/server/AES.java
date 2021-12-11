@@ -27,7 +27,7 @@ public class AES {
 			keyGen.init(256,random); 
 			secretKey = keyGen.generateKey();
 		} catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            System.out.println("Lỗi tạo keyGen");
         }
 	}
 	  public static String encrypt(String strToEncrypt) 
