@@ -28,7 +28,7 @@ public class AES {
 			secretKey = keyGen.generateKey();
 			return secretKey;
 		} catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            System.out.println("lỗi tạo key");
         } 
 		return null;
        
