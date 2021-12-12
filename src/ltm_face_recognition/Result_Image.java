@@ -5,6 +5,7 @@
  */
 package ltm_face_recognition;
 
+import DTO.HinhanhDTO;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -12,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
@@ -36,6 +39,7 @@ public class Result_Image extends javax.swing.JFrame {
     /**
      * Creates new form Result_Image
      */
+        static ArrayList<HinhanhDTO> arRI=new ArrayList<HinhanhDTO>();
 	public ArrayList<String> result;
 	private String userID="";
 	private BufferedImage buff;
@@ -154,6 +158,7 @@ public class Result_Image extends javax.swing.JFrame {
         jTable1.getColumnModel().getColumn(2).setPreferredWidth(144);
     }*/
     public void setResult() throws IOException {
+        arRI.clear();
     	DefaultTableModel dtm=(DefaultTableModel)jTable1.getModel();
     	Object[] Headers = new Object[]{ "Ảnh cần so sánh", "Tên người nhận điện", "Tỉ lệ"};
     	
@@ -164,24 +169,55 @@ public class Result_Image extends javax.swing.JFrame {
         JSONParser parser = new JSONParser();
     	for(String s:this.result) {
     		try {
-				object1 = (JSONObject)parser.parse(s);
-				String name = (String)object1.get("name");
-				String confidence = (String)object1.get("confidence");
-				String imageName = (String)object1.get("image");
-				File e = new File("C:\\Users\\LENOVO\\eclipse-workspace\\ltm\\folder\\"+imageName);
-				 JLabel imageLabel = new JLabel();
-				ImageIcon icon = new ImageIcon(ImageIO.read(e));
-				Image image = icon.getImage().getScaledInstance(160,160, Image.SCALE_SMOOTH);
-				imageLabel.setIcon(new ImageIcon(image));
-				Object[] obj  = {imageLabel,name,confidence};	
-				dtm.addRow(obj);
+                                object1 = (JSONObject)parser.parse(s);
+                                HinhanhDTO hinh= new HinhanhDTO();
+                                hinh.setsImage((String)object1.get("image"));
+                                hinh.setsName((String)object1.get("name"));
+                                hinh.setiConfident(Float.parseFloat((String)object1.get("confidence")));
+                                arRI.add(hinh);
+                                
+//				object1 = (JSONObject)parser.parse(s);
+//				String name = (String)object1.get("name");
+//				String confidence = (String)object1.get("confidence");
+//				String imageName = (String)object1.get("image");
+//				File e = new File("C:\\Users\\LENOVO\\eclipse-workspace\\ltm\\folder\\"+imageName);
+//				 JLabel imageLabel = new JLabel();
+//				ImageIcon icon = new ImageIcon(ImageIO.read(e));
+//				Image image = icon.getImage().getScaledInstance(160,160, Image.SCALE_SMOOTH);
+//				imageLabel.setIcon(new ImageIcon(image));
+//				Object[] obj  = {imageLabel,name,confidence};	
+//				dtm.addRow(obj);
     		
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-    		
+			}	
     	}
+        //Sắp xếp danh sách theo tỉ lệ giảm dần!
+        Collections.sort(arRI, new Comparator<HinhanhDTO>() {
+            @Override
+            public int compare(HinhanhDTO sv1, HinhanhDTO sv2) {
+                if (sv1.getiConfident() < sv2.getiConfident()) {
+                    return 1;
+                } else {
+                    if (sv1.getiConfident() == sv2.getiConfident()) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+                }
+            }
+        });
+        for (int i = 0; i < arRI.size(); i++) {
+            File e = new File("C:\\Users\\LENOVO\\eclipse-workspace\\ltm\\folder\\"+arRI.get(i).getsImage());
+            JLabel imageLabel = new JLabel();
+            ImageIcon icon = new ImageIcon(ImageIO.read(e));
+            Image image = icon.getImage().getScaledInstance(160,160, Image.SCALE_SMOOTH);
+            imageLabel.setIcon(new ImageIcon(image));
+            Object[] obj  = {imageLabel,arRI.get(i).getsName(),arRI.get(i).getiConfident()};	
+            dtm.addRow(obj);
+        }
+        
     	System.out.println(dtm.getRowCount());
     	dtm.fireTableDataChanged();
     	
