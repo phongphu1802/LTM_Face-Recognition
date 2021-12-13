@@ -26,7 +26,7 @@ public class test {
             arRI.add(new HinhanhDTO("E","E", (float) 19.2));
              arRI.add(new HinhanhDTO("F","F", (float) 11.2));
              
-        //Sắp xếp danh sách theo số điểm giảm dần!
+        //Sắp xếp danh sách theo tỉ lệ giảm dần!
         Collections.sort(arRI, new Comparator<HinhanhDTO>() {
             @Override
             public int compare(HinhanhDTO sv1, HinhanhDTO sv2) {

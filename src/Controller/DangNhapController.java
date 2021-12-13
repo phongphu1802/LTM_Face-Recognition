@@ -78,7 +78,7 @@ public class DangNhapController {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         	//encrypt
         	secretKey = aes.generatorKey();
-        	 System.out.println(secretKey);
+//        	System.out.println(secretKey);
         	String cipherText1 = Base64.getEncoder().encodeToString(secretKey.getEncoded());
         	String RSAEncrypt = Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
         	//send secret key
@@ -99,7 +99,7 @@ public class DangNhapController {
                 //Bắt dữ liệu về
                 String RS= in.readLine();
                 line = aes.decrypt(RS, secretKey);
-                System.out.println("Server sent: " + line+"\n"+RS);
+//                System.out.println("Server sent: " + line+"\n"+RS);
                 switch(line){
                     case "1":{
                         JOptionPane.showMessageDialog(null,"Tài khoản "+strTaiKhoan+" không tồn tại.");
@@ -114,19 +114,13 @@ public class DangNhapController {
                     case "3":{
                         JSONObject object1=null;
                         JSONParser parser = new JSONParser();
-                        String id="";
                         try {
                             object1 = (JSONObject) parser.parse(aes.decrypt(in.readLine(), secretKey));
-                            System.out.println((String)object1.get("LastName"));
-                            System.out.println((String)object1.get("NameUser"));
-                            System.out.println((String)object1.get("Date_of_birth"));
-                            id=(String)object1.get("userID");
-                            
                         } catch (Exception ex) {
                             Logger.getLogger(DangNhapController.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        Face_Recognition face = new Face_Recognition(socket,secretKey,id);
-                        face.Start(id,(String) object1.get("LastName"), (String) object1.get("NameUser"), (String) object1.get("Date_of_birth"));
+                        Face_Recognition face = new Face_Recognition(socket,secretKey,(String)object1.get("userID"));
+                        face.Start((String)object1.get("userID"),(String) object1.get("LastName"), (String) object1.get("NameUser"), (String) object1.get("Date_of_birth"));
                         face.setVisible(true);
                         Result = "Đăng nhập thành công";
                         break;

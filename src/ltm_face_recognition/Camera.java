@@ -115,14 +115,14 @@ public class Camera extends JFrame{
                         icon = new ImageIcon(imageData);           
                         cameraScreen.setIcon(icon);
                         if(clicked){
-                        	System.out.println("Click");
+                            System.out.println("Click");
 //                          String name = JOptionPane.showInputDialog(this,"Enter image name");
 //                          if(name==null){
 //                              name = new SimpleDateFormat("yyyy-mm-dd-hh-mm-ss").format(new Date());
 //                          }
 //                          
 //                          Imgcodecs.imwrite("images/"+name+".jpg", image);
-                        	try {
+                            try {
                                                       
     							/*Thread.sleep(3000);
     							byte[] data = new byte[1000];
@@ -138,29 +138,23 @@ public class Camera extends JFrame{
     	                          dout.close();
     	              	        dis.close();
     	              	        socket.close();*/
-                                           fa= new Face_Recognition(this.socket,this.secretKey,id);
-                                            fa.loadAnh(image);
-                                            clicked = false;
-                                            setVisible(false);
-    	                          dispose();  
-    	                          
-    						}catch(SocketTimeoutException ex){
-    							System.out.println("hi");
-    						} 
-                        	catch (IOException e) {
-    							// TODO Auto-generated catch block
-    							e.printStackTrace();
-    						}
-                        	
-                                      
+                                fa= new Face_Recognition(this.socket,this.secretKey,id);
+                                fa.loadAnh(image);
+                                clicked = false;
+                                setVisible(false);
+    	                        dispose();  
+                            }catch(SocketTimeoutException ex){
+    				System.out.println("hi");
+                            } 
+                            catch (IOException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+                        }              
                     }
                 }
-                
-                
-            }
-           
             }
         }
+    }
 
     
 //    public static void main(String args[]) {
