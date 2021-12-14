@@ -61,6 +61,8 @@ import org.opencv.imgcodecs.Imgcodecs;
 
 import Cipher.RSA;
 import Cipher.AES;
+import Controller.ThemAnhController;
+import java.awt.event.WindowAdapter;
 import javax.swing.Icon;
 
 /**
@@ -94,6 +96,23 @@ public class Face_Recognition extends javax.swing.JFrame {
         this.secretKey = secretKey;
         System.out.println("key nhan dc "+this.secretKey);
         initComponents();
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                int hoi = JOptionPane.showConfirmDialog(null, "Bạn có muốn thoát chương trình không?",null, JOptionPane.YES_NO_OPTION);
+                if (hoi == JOptionPane.YES_OPTION) {
+                    try {
+                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                        writer.write(aes.encrypt("DEAD"));
+                        writer.newLine();
+                        writer.flush();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Face_Recognition.class.getName()).log(Level.SEVERE, null, ex);
+                    } finally {
+                        
+                    }
+                }
+            }
+        });
     }
     public Face_Recognition() throws IOException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -109,7 +128,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         this.NameUser=NameUser;
         this.Date_of_birth=Date_of_birth;
         jLabel2.setText("Tên người dùng: "+this.LastName+" "+this.NameUser);
-        //jLabel4.setText("Ngày sinh: "+this.Date_of_birth);
+        jLabel4.setText("Ngày sinh: "+this.Date_of_birth);
     }
     
     // can chinh image
@@ -281,6 +300,7 @@ public class Face_Recognition extends javax.swing.JFrame {
             @Override
             public void run() {
 		camera = new Camera(socket,secretKey,id);
+                camera.Start(id, LastName, NameUser, Date_of_birth);
                 new Thread(new Runnable(){
                     @Override
                     public void run(){

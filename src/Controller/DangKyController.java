@@ -14,7 +14,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -40,10 +45,10 @@ public class DangKyController {
     
     public Socket ConnectServer(String host,int port) {
     	try {
-            socket = new Socket(host,port);
+            setSocket(new Socket(host,port));
             rsa = new RSA();
             aes = new AES();
-            return socket;
+            return getSocket();
 	}catch(UnknownHostException ex) {
             ex.printStackTrace();
 	}catch (IOException e) {
@@ -53,7 +58,7 @@ public class DangKyController {
     	return null;
     }
     public void disconnectServer() throws IOException {
-    	socket.close();
+    	getSocket().close();
     }
     
     public DangKyController(){
@@ -71,53 +76,61 @@ public class DangKyController {
                 if(Pattern.matches("^\\D+$", strHo)){
                     //Kiểm tra tên không được có số
                     if(Pattern.matches("^\\D+$", strTen)){
-                        try{
-                            socket = ConnectServer(host, port);  
-                            if(socket!=null&&socket.isConnected()) {
-                                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                                //encrypt
-                                secretKey = aes.generatorKey();
-                                String cipherText1 = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-                                String RSAEncrypt = Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
-                                //send secret key
-                                out.write(RSAEncrypt);
-                                out.newLine();
-                                out.flush();
-                                //Gửi dữ liệu đi
-                                out.write(aes.encrypt("register"));
-                                out.newLine();
-                                out.flush();
-                                JSONObject object= new JSONObject();
-                                object.put("user", strTaiKhoan);
-                                object.put("pass", strMatKhau);
-                                object.put("lastname", strHo);
-                                object.put("firstname", strTen);
-                                object.put("date_of_birth", strNgaySinh);
-                                System.out.println(object);
-                                out.write(aes.encrypt(object.toString()));
-                                out.newLine();
-                                out.flush();
-                                //Bắt dữ liệu về
-                                line = aes.decrypt(in.readLine(), secretKey);
-                                System.out.println("Server sent: " + line);
-                                switch(line){
-                                    case "0":{
-                                        JOptionPane.showMessageDialog(null,"Tài khoản "+strTaiKhoan+" đăng ký thành công.");
-                                        Result = "Tài khoản đăng ký thành công.";
-                                        break;
-                                    }
-                                    case "1":{
-                                        JOptionPane.showMessageDialog(null,"Tài khoản "+strTaiKhoan+" đăng ký đã có người dùng vui lòng chọn tên tài khoản khác.");
-                                        Result = "Tài khoản "+strTaiKhoan+" đăng ký đã có người dùng vui lòng chọn tên tài khoản khác.";
-                                        break;
+                        if(calculateAge(strNgaySinh)>18&&calculateAge(strNgaySinh)<100){
+                            try{
+                                setSocket(ConnectServer(host, port));  
+                                if(getSocket()!=null&&getSocket().isConnected()) {
+                                    out = new BufferedWriter(new OutputStreamWriter(getSocket().getOutputStream()));
+                                    in = new BufferedReader(new InputStreamReader(getSocket().getInputStream()));
+                                    //encrypt
+                                    setSecretKey(aes.generatorKey());
+                                    String cipherText1 = Base64.getEncoder().encodeToString(getSecretKey().getEncoded());
+                                    String RSAEncrypt = Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
+                                    //send secret key
+                                    out.write(RSAEncrypt);
+                                    out.newLine();
+                                    out.flush();
+                                    //Gửi dữ liệu đi
+                                    out.write(aes.encrypt("register"));
+                                    out.newLine();
+                                    out.flush();
+                                    JSONObject object= new JSONObject();
+                                    object.put("user", strTaiKhoan);
+                                    object.put("pass", strMatKhau);
+                                    object.put("lastname", strHo);
+                                    object.put("firstname", strTen);
+                                    object.put("date_of_birth", strNgaySinh+"T08:51:10.1225942+07:00");
+                                    System.out.println(object);
+                                    out.write(aes.encrypt(object.toString()));
+                                    out.newLine();
+                                    out.flush();
+                                    //Bắt dữ liệu về
+                                    line = aes.decrypt(in.readLine(), getSecretKey());
+                                    System.out.println("Server sent: " + line);
+                                    switch(line){
+                                        case "0":{
+                                            JOptionPane.showMessageDialog(null,"Tài khoản "+strTaiKhoan+" đăng ký thành công.");
+                                            Result = "Tài khoản đăng ký thành công.";
+                                            out.write(aes.encrypt("DEAD"));
+                                            out.newLine();
+                                            out.flush();
+                                            break;
+                                        }
+                                        case "1":{
+                                            JOptionPane.showMessageDialog(null,"Tài khoản "+strTaiKhoan+" đăng ký đã có người dùng vui lòng chọn tên tài khoản khác.");
+                                            Result = "Tài khoản "+strTaiKhoan+" đăng ký đã có người dùng vui lòng chọn tên tài khoản khác.";
+                                            break;
+                                        }
                                     }
                                 }
+                                //Đóng kết nối
+                                disconnectServer();
+                            }catch(Exception e){
+                                System.err.println(e);
                             }
-                            //Đóng kết nối
-                            disconnectServer();
-                        }catch(Exception e){
-                            System.err.println(e);
+                        }else{
+                            JOptionPane.showMessageDialog(null,"Tuổi phải lớn hơn 18 và bé hơn 100!!!");
+                            Result="Tuổi phải lớn hơn 18 và bé hơn 100.";
                         }
                     }else{
                         JOptionPane.showMessageDialog(null,"Tên không được có số!!!");
@@ -136,5 +149,55 @@ public class DangKyController {
             Result="Dữ liệu không được rỗng.";
         }
         return Result;
+    }
+    
+    /**
+     * @return the socket
+     */
+    public Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * @param socket the socket to set
+     */
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    /**
+     * @return the secretKey
+     */
+    public SecretKey getSecretKey() {
+        return secretKey;
+    }
+
+    /**
+     * @param secretKey the secretKey to set
+     */
+    public void setSecretKey(SecretKey secretKey) {
+        this.secretKey = secretKey;
+    }
+    //Thực thi gửi request về client
+    public void Reply(String stResult){
+        try {
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.write(stResult);
+            out.newLine();
+            out.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(DangNhapController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public String Encrypt(String stResult){
+        return aes.encrypt(stResult);
+    }
+    
+    public static long calculateAge(String birthDate) {
+        LocalDate localDate1 = LocalDate.parse(birthDate,DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate localDate2 = LocalDate.now();
+        long years = java.time.temporal.ChronoUnit.YEARS.between( localDate1 , localDate2 );
+        return years;
     }
 }

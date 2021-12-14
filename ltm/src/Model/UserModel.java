@@ -50,11 +50,13 @@ public class UserModel {
     	rsUser=this.connect.Select("USER_TK",userkt);
     	
     	while(rsUser.next()){
-    		UserDTO user=new UserDTO();
+            UserDTO user=new UserDTO();
             user.setIdUser(rsUser.getString(1));
             user.setIdTK(rsUser.getString(2));
             user.setLastName(rsUser.getString(3));
             user.setNameUser(rsUser.getString(4));
+            user.setDate_of_birth(rsUser.getString(5));
+            user.setStatus(rsUser.getString(6));
             arUser.add(user);
         }
         return arUser;
@@ -70,7 +72,8 @@ public class UserModel {
             user.setIdTK(rsUser.getString(2));
             user.setLastName(rsUser.getString(3));
             user.setNameUser(rsUser.getString(4));
-            user.setNameUser(rsUser.getString(4));
+            user.setDate_of_birth(rsUser.getString(5));
+            user.setStatus(rsUser.getString(6));
             arUser.add(user);
         }
         return arUser;

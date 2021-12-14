@@ -6,6 +6,8 @@
 package ltm_face_recognition;
 
 import Controller.DangNhapController;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -21,6 +23,20 @@ public class FrameDangNhap extends javax.swing.JFrame {
      */
     public FrameDangNhap() {
         initComponents();
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                int hoi = JOptionPane.showConfirmDialog(null, "Bạn có muốn thoát chương trình không?",null, JOptionPane.YES_NO_OPTION);
+                if (hoi == JOptionPane.YES_OPTION) {
+                    if(DangNhap.getSecretKey()==null){
+                        System.exit(0);
+                    }else{
+                        String s1=DangNhap.Encrypt("DEAD");
+                        DangNhap.Reply(s1);
+                        System.exit(0);
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -148,7 +164,7 @@ public class FrameDangNhap extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         if(jCheckBox1.isSelected()) {
             jPasswordField1.setEchoChar((char) 0);
@@ -209,8 +225,15 @@ public class FrameDangNhap extends javax.swing.JFrame {
 
     private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
         setVisible(false);
-        FrameDangKy s = new FrameDangKy();
-        s.setVisible(true);
+        if(DangNhap.getSecretKey()==null){
+            FrameDangKy s = new FrameDangKy();
+            s.setVisible(true);
+        }else{
+            DangNhap.Reply(DangNhap.Encrypt("DEAD"));
+            FrameDangKy s = new FrameDangKy();
+            s.setVisible(true);
+        }
+        
     }//GEN-LAST:event_jLabel5MouseClicked
 
     /**

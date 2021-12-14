@@ -21,7 +21,7 @@ public class ConnectAPI {
     private final static int READ_OUT_TIME = 50000;
     private  String boundaryString = getBoundary();
     //post method connect api
-    protected  byte[] post(String url, HashMap<String, String> map, HashMap<String, byte[]> fileMap) throws Exception {
+    public  byte[] post(String url, HashMap<String, String> map, HashMap<String, byte[]> fileMap) throws Exception {
         HttpURLConnection conne;
         URL url1 = new URL(url);
         conne = (HttpURLConnection) url1.openConnection();

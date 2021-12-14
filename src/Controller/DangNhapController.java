@@ -45,10 +45,10 @@ public class DangNhapController {
     
     public Socket ConnectServer(String host,int port) {
     	try {
-            socket = new Socket(host,port);
+            setSocket(new Socket(host,port));
             rsa = new RSA();
             aes = new AES();
-            return socket;
+            return getSocket();
 	}catch(UnknownHostException ex) {
             ex.printStackTrace();
 	}catch (IOException e) {
@@ -58,7 +58,7 @@ public class DangNhapController {
     	return null;
     }
     public void disconnectServer() throws IOException {
-    	socket.close();
+    	getSocket().close();
     }
     
     public DangNhapController(){
@@ -68,18 +68,18 @@ public class DangNhapController {
 //            System.err.println(e);
 //        }
     }
-    public String DangNhapController(String host, int port, String strTaiKhoan,String strMatKhau){
-        socket = ConnectServer(host, port);
+    public String DangNhapController(String host, int port,String strTaiKhoan,String strMatKhau){
+        setSocket(ConnectServer(host, port));
         String Result="";
         String line = "";
         try{
-            if(socket!=null&&socket.isConnected()) {
-                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            if(getSocket()!=null&&getSocket().isConnected()) {
+                out = new BufferedWriter(new OutputStreamWriter(getSocket().getOutputStream()));
+                in = new BufferedReader(new InputStreamReader(getSocket().getInputStream()));
         	//encrypt
-        	secretKey = aes.generatorKey();
+        	setSecretKey(aes.generatorKey());
 //        	System.out.println(secretKey);
-        	String cipherText1 = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+        	String cipherText1 = Base64.getEncoder().encodeToString(getSecretKey().getEncoded());
         	String RSAEncrypt = Base64.getEncoder().encodeToString(rsa.encrypt(cipherText1, publicKey));
         	//send secret key
         	out.write(RSAEncrypt);
@@ -98,7 +98,7 @@ public class DangNhapController {
                 System.out.println("Đã gửi");
                 //Bắt dữ liệu về
                 String RS= in.readLine();
-                line = aes.decrypt(RS, secretKey);
+                line = aes.decrypt(RS, getSecretKey());
 //                System.out.println("Server sent: " + line+"\n"+RS);
                 switch(line){
                     case "1":{
@@ -116,10 +116,11 @@ public class DangNhapController {
                         JSONParser parser = new JSONParser();
                         try {
                             object1 = (JSONObject) parser.parse(aes.decrypt(in.readLine(), secretKey));
+                            System.out.println(object);
                         } catch (Exception ex) {
                             Logger.getLogger(DangNhapController.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        Face_Recognition face = new Face_Recognition(socket,secretKey,(String)object1.get("userID"));
+                        Face_Recognition face = new Face_Recognition(getSocket(), getSecretKey(),(String)object1.get("userID"));
                         face.Start((String)object1.get("userID"),(String) object1.get("LastName"), (String) object1.get("NameUser"), (String) object1.get("Date_of_birth"));
                         face.setVisible(true);
                         Result = "Đăng nhập thành công";
@@ -132,5 +133,47 @@ public class DangNhapController {
             System.err.println(e);
         }
         return Result;
+    }
+    /**
+     * @return the socket
+     */
+    public Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * @param socket the socket to set
+     */
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    /**
+     * @return the secretKey
+     */
+    public SecretKey getSecretKey() {
+        return secretKey;
+    }
+
+    /**
+     * @param secretKey the secretKey to set
+     */
+    public void setSecretKey(SecretKey secretKey) {
+        this.secretKey = secretKey;
+    }
+    //Thực thi gửi request về client
+    public void Reply(String stResult){
+        try {
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.write(stResult);
+            out.newLine();
+            out.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(DangNhapController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public String Encrypt(String stResult){
+        return aes.encrypt(stResult);
     }
 }

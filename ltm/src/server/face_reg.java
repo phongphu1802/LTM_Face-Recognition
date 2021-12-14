@@ -92,7 +92,7 @@ public class face_reg {
 	            confidence = (Double)obj.get("confidence")+"";
 	            return confidence;
 	        }catch(Exception e) {
-	        	System.out.println("Không so sánh được Face");
+	        	e.printStackTrace();
 	        }
 	        return confidence;
 	    
@@ -149,7 +149,7 @@ public class face_reg {
 	            }
 	            return true;
 	        }catch(Exception e) {
-	        	System.out.println("Lỗi không AddFaceAPI được");                                                                       
+	        	e.printStackTrace();
 	        }
 	        return true;
 	    }
@@ -174,7 +174,7 @@ public class face_reg {
 	            }
 	            return true;
 	        }catch(Exception e) {
-	        	System.out.println("Lỗi không setUpUderIDAPI được");
+	        	e.printStackTrace();
 	        }
 	        return true;
 	    }
