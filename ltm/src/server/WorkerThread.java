@@ -234,6 +234,7 @@ public class WorkerThread extends Thread {
                 String reply = aes.encrypt1(o.toString(), key);
                 Reply(reply);
             }
+            result.clear();
             Reply(aes.encrypt1("END", key));
         } catch (Exception ex) {
             ex.printStackTrace();

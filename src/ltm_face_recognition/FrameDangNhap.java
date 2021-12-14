@@ -123,7 +123,6 @@ public class FrameDangNhap extends javax.swing.JFrame {
         jLabel5.setBounds(190, 410, 200, 50);
 
         jTextField1.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jTextField1.setText("Nhập tài khoản");
         jTextField1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jTextField1.setPreferredSize(new java.awt.Dimension(400, 50));
         jPanel1.add(jTextField1);
@@ -140,7 +139,6 @@ public class FrameDangNhap extends javax.swing.JFrame {
         jPanel1.add(jCheckBox1);
         jCheckBox1.setBounds(430, 350, 125, 25);
 
-        jPasswordField1.setText("Password");
         jPasswordField1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel1.add(jPasswordField1);
         jPasswordField1.setBounds(240, 280, 400, 50);

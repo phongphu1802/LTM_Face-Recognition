@@ -94,16 +94,12 @@ public class Result_Image extends javax.swing.JFrame {
                     writer.write(aes.encrypt("DEAD"));
                     writer.newLine();
                     writer.flush();
+                    setVisible(false);
                     System.exit(0);
                 } catch (IOException ex) {
-                    Logger.getLogger(Result_Image.class.getName()).log(Level.SEVERE, null, ex);
-                } finally {
-                    try {
-                        writer.close();
-                    } catch (IOException ex) {
-                        Logger.getLogger(Result_Image.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
+//                    Logger.getLogger(Result_Image.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("Lỗi kết nối");
+                } 
             }
         });
     }
@@ -134,13 +130,10 @@ public class Result_Image extends javax.swing.JFrame {
         jTable1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
-                "Ảnh cần so sánh", "Tên người nhận điện", "Tỉ lệ"
+                "Tên người nhận điện", "Tỉ lệ"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -229,6 +222,11 @@ public class Result_Image extends javax.swing.JFrame {
 
     public void setResult() throws IOException {
         arRI.clear();
+//        if(dtm.getRowCount()>0){
+//            for(int i=0; i<dtm.getRowCount(); i++){
+//                dtm.removeRow(i);
+//            }
+//        }
         DefaultTableModel dtm = (DefaultTableModel) jTable1.getModel();
         Object[] Headers = new Object[]{"Tên người nhận điện", "Tỉ lệ"};
         
@@ -249,6 +247,9 @@ public class Result_Image extends javax.swing.JFrame {
                 System.out.println("Lỗi setResult");
             }            
         }
+//        for (int i = 0; i < arRI.size(); i++) {
+//            System.out.println(arRI.get(i).getsImage());
+//        }
         //Sắp xếp danh sách theo tỉ lệ giảm dần!
         Collections.sort(arRI, new Comparator<HinhanhDTO>() {
             @Override

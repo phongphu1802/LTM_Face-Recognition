@@ -38,17 +38,20 @@ import server.face_reg;
  * @author LAPTOPTOKYO
  */
 public class ThemAnhController {
-    static ArrayList<ImageDTO> arIG;
+    ArrayList<ImageDTO> arIG;
     ImageModel add_image= new ImageModel();
     public ThemAnhController(){
-        
+        arIG=new ArrayList<ImageDTO>();
     }
     
     public int themAnh(String iduser,BufferedImage bimg, byte[] temp1){
+        arIG.clear();
         arIG = add_image.Select(iduser);
+        System.out.println("Size: "+arIG.size());
         //Kiểm tra dữ liệu của thành viên đã có trong database chưa
         //Nếu có thì kiểm tra tỉ lệ giống nhau
         //Nếu không thì cho add ảnh mới vào.
+        
         if(arIG.size()==0)
         {
             if(bimg!=null){

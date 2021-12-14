@@ -24,7 +24,7 @@ public class ImageModel {
     }
     public ArrayList<ImageDTO> getAll(){
     	try {
-            
+            images.clear();
             rsImage=this.connect.Select("Hinhanh");
             //Lấy thông tin table tai khoản
             while(rsImage.next()){

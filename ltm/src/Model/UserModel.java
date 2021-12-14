@@ -20,7 +20,7 @@ import java.util.HashMap;
  * @author LAPTOPTOKYO
  */
 public class UserModel {
-    static ArrayList<UserDTO> arUser=new ArrayList<UserDTO>();
+    ArrayList<UserDTO> arUser=new ArrayList<UserDTO>();
     MyConnectUnit connect;
     ResultSet rsUser;
     public UserModel(){
@@ -48,7 +48,7 @@ public class UserModel {
     public  ArrayList<UserDTO> getUser(String userID) throws Exception {
     	 String userkt="ID_user ='"+userID+"'";
     	rsUser=this.connect.Select("USER_TK",userkt);
-    	
+
     	while(rsUser.next()){
             UserDTO user=new UserDTO();
             user.setIdUser(rsUser.getString(1));

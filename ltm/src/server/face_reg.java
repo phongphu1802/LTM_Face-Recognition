@@ -37,7 +37,9 @@ public class face_reg {
     String name;
     int num;
     ArrayList<UserDTO> users;
-    
+    ArrayList<JSONObject> list_obj;
+    ArrayList<ImageDTO> userImages;
+    ArrayList<ImageDTO> FetchUserImages;
     public face_reg(String idUser, BufferedImage img) throws IOException {
         num=0;
         this.idUser=idUser;
@@ -46,6 +48,9 @@ public class face_reg {
         user = new UserModel();
         images = new ArrayList<>();
         this.image=img;
+        list_obj= new ArrayList<>();
+        userImages=new ArrayList<>();
+        FetchUserImages = new ArrayList<ImageDTO>();
 //        this.name= new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 //        File f = new File("folder/"+name+".jpg");
 //        ImageIO.write(img, "jpg", f);
@@ -54,11 +59,11 @@ public class face_reg {
     }
     
     public ArrayList<ImageDTO> getImageUser() {
+        FetchUserImages.clear();
         images = model.getAll();
-        ArrayList<ImageDTO> FetchUserImages = new ArrayList<ImageDTO>();
         ImageDTO dt = new ImageDTO();
         for(ImageDTO img:images) {
-            if((img.getUser_id().equals(idUser))&&(FetchUserImages.contains(img.getUser_id()))) {
+            if((img.getUser_id().equals(idUser))||(FetchUserImages.contains(img.getUser_id()))) {
                 
             }else {
 		if(!img.getUser_id().equals(idUser)) {
@@ -66,6 +71,8 @@ public class face_reg {
                 }		 
             }
         }
+        System.out.println("image #"+images.size());
+        System.out.println("FetchUserImages #"+FetchUserImages.size());
         return FetchUserImages;
     }
     public String faceCompare(byte[] face1,byte[] face2) {
@@ -102,11 +109,12 @@ public class face_reg {
     }
     
     public ArrayList<JSONObject> getResultFromAPI() throws Exception{
-	ArrayList<JSONObject> list_obj= new ArrayList<>();
-	ArrayList<ImageDTO> userImages = getImageUser();
-	System.out.println(new File("").getAbsolutePath());
+	list_obj.clear();
+        userImages.clear();
+        users = new ArrayList<>();
+        userImages = getImageUser();
 	System.out.print(userImages.size());
-	users = new ArrayList<>();
+	
 	for(int i=0;i<userImages.size();i++) {
             JSONObject obj = new JSONObject();
             File  tmp =new File("folder/"+userImages.get(i).getImage_name());
@@ -119,14 +127,16 @@ public class face_reg {
             byte[] bytes1 = byteArrayOutputStream.toByteArray();
             String con = faceCompare(bytes1,bytes)+"";
             obj.put("confidence",con);
-            users = null;
+
             System.out.println(userImages.get(i).getUser_id());
             users = user.getUser(userImages.get(i).getUser_id());
-            System.out.println(users.size()+"error:"+users.get(i).getNameUser());
+            System.out.println(users.size()+" error:"+users.get(i).getNameUser());
             obj.put("image", userImages.get(i).getImage_name());
-            obj.put("name", users.get(i+1).getNameUser());
+            obj.put("name", users.get(i).getNameUser());
             list_obj.add(obj);
         }
+        System.out.println("List object"+ list_obj.size());
+        System.out.println("userImages"+userImages.size());
 	return list_obj;
     }
 	 

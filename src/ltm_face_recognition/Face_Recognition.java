@@ -154,7 +154,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         }
         return null;
     }
-    
+
     // can chinh image
     public Icon loadimage_processing2(BufferedImage linkImage, int k, int m) {/*linkImage là tên icon, k kích thước chiều rộng mình muốn,m chiều dài và hàm này trả về giá trị là 1 icon.*/
         BufferedImage image = linkImage;//đọc ảnh dùng BufferedImage
@@ -172,6 +172,7 @@ public class Face_Recognition extends javax.swing.JFrame {
         }
         return new ImageIcon(image.getScaledInstance(dx, dy, image.SCALE_SMOOTH));
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -307,10 +308,14 @@ public class Face_Recognition extends javax.swing.JFrame {
 
     //btn Lấy ảnh có trong máy
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        GetImage gI = new GetImage();
-        int x = jLabel3.getWidth();
-        int y = jLabel3.getHeight();
-        jLabel3.setIcon(loadimage_processing(gI.getImage(), x, y));
+        try {
+            GetImage gI = new GetImage();
+            int x = jLabel3.getWidth();
+            int y = jLabel3.getHeight();
+            jLabel3.setIcon(loadimage_processing(gI.getImage(), x, y));
+        } catch (NullPointerException e) {
+            System.out.println("Lỗi ko chọn dữ liệu");
+        }
     }//GEN-LAST:event_jButton1MouseClicked
 
     //btn Mở máy ảnh
@@ -379,53 +384,11 @@ public class Face_Recognition extends javax.swing.JFrame {
 
     //btn Thêm nhận dạng mới
     private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
-        GetImage getImage = new GetImage();
-        try {
-            BufferedImage image = ImageIO.read(new File(getImage.getImage()));
-            if (socket != null && socket.isConnected()) {
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                //encrypt
-
-                //send func keyword by secretKey
-                writer.write(aes.encrypt("Static"));
-                writer.newLine();
-                writer.flush();
-                byte[] imageData;
-                ImageIcon icon;
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                ImageIO.write(image, "jpg", byteArrayOutputStream);//image to byte[]
-                String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());//encode image to string
-                String cipherText2 = aes.encrypt1(byteImage, this.secretKey);
-                //send image 
-                writer.write(cipherText2);
-                writer.newLine();
-                writer.flush();
-                BufferedImage bf;
-                boolean c = true;
-                while (c) {
-                    String line = reader.readLine();
-                    //add image receive to bufferimage
-                    String plainText = aes.decrypt(line, secretKey);
-                    bf = ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(plainText)));
-//		      System.out.println(bf.toString());
-                    if (bf != null) {
-                        Mat m = bufferedImageToMat(bf);
-                        final MatOfByte buf2 = new MatOfByte();
-                        Imgcodecs.imencode(".jpg", m, buf2);
-                        imageData = buf2.toArray();
-                        icon = new ImageIcon(imageData);
-                        jLabel3.setIcon(icon);
-                        setVisible(true);
-                        c = false;
-                    }
-                }
-            } else {
-                this.setVisible(false);
-            }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            System.out.println("Lỗi nút thêm định dạng mới ");
+        if (jLabel3.getIcon() == null) {
+            JOptionPane.showMessageDialog(null, "Bạn cần chụp ảnh hoặc thêm ảnh từ máy tính để có thể thêm ảnh.");
+        } else {
+            ThemAnhController temp = new ThemAnhController(socket, secretKey);
+            temp.ThemAnhController(staticImg, this.id);
         }
     }//GEN-LAST:event_jButton3MouseClicked
 
@@ -499,7 +462,7 @@ public class Face_Recognition extends javax.swing.JFrame {
                         String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());//encode image to string
                         String cipherText2 = aes.encrypt1(byteImage, this.secretKey);
                         System.out.println(cipherText2);
-//send image 
+                        //send image 
                         writer.write(cipherText2);
                         writer.newLine();
                         writer.flush();
@@ -520,7 +483,7 @@ public class Face_Recognition extends javax.swing.JFrame {
                                 Image image = bf;
 //                                Image image2 = image.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
                                 icon = new ImageIcon(image);
-                                
+
                                 jLabel3.setIcon(icon);
                                 setVisible(true);
                                 c = false;
@@ -571,9 +534,9 @@ public class Face_Recognition extends javax.swing.JFrame {
 //                System.out.println(bf.toString());
                 if (bf != null) {
                     this.staticImg = bf;
-                    
-                    jLabel3.setIcon(loadimage_processing2(bf,300,300));
-                    
+
+                    jLabel3.setIcon(loadimage_processing2(bf, jLabel3.getWidth(), jLabel3.getHeight()));
+
                     setVisible(true);
                     c = false;
                 }
