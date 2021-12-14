@@ -18,7 +18,9 @@ import javax.swing.JOptionPane;
  * @author LAPTOPTOKYO
  */
 public class FrameDangKy extends javax.swing.JFrame {
+
     DangKyController DangKy = new DangKyController();
+
     /**
      * Creates new form FrameDangKy
      */
@@ -26,17 +28,15 @@ public class FrameDangKy extends javax.swing.JFrame {
         initComponents();
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                int hoi = JOptionPane.showConfirmDialog(null, "Bạn có muốn thoát chương trình không?",null, JOptionPane.YES_NO_OPTION);
-                if (hoi == JOptionPane.YES_OPTION) {
-                    if(DangKy.getSecretKey()==null){
-                        System.exit(0);
-                    }else{
-                        String s1=DangKy.Encrypt("DEAD");
-                        DangKy.Reply(s1);
-                        System.exit(0);
-                    }
+                if (DangKy.getSecretKey() == null) {
+                    System.exit(0);
+                } else {
+                    String s1 = DangKy.Encrypt("DEAD");
+                    DangKy.Reply(s1);
+                    System.exit(0);
                 }
             }
+
         });
     }
 
@@ -253,7 +253,7 @@ public class FrameDangKy extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel9MouseEntered
 
     private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
-        
+
         String strTaiKhoan, strMatKhau, strNhapLaiMatKhau, strHo, strTen, strNgaySinh, strKetQua;
         strTaiKhoan = jTextField1.getText();
         strHo = jTextField2.getText();
@@ -261,11 +261,10 @@ public class FrameDangKy extends javax.swing.JFrame {
         strMatKhau = jPasswordField1.getText();
         strNhapLaiMatKhau = jPasswordField2.getText();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        strNgaySinh = ""+dateFormat.format(jDateChooser1.getDate());
-        
+        strNgaySinh = "" + dateFormat.format(jDateChooser1.getDate());
+
 //        System.out.println(strTaiKhoan+"#"+strMatKhau+"#"+strNhapLaiMatKhau+"#"+strHo+"#"+strTen+"#"+strNgaySinh+"#");
-        
-        if(DangKy.DangKyController("localhost",4606,strTaiKhoan, strMatKhau, strNhapLaiMatKhau, strHo, strTen, strNgaySinh).equals("Tài khoản đăng ký thành công.")){
+        if (DangKy.DangKyController("localhost", 4606, strTaiKhoan, strMatKhau, strNhapLaiMatKhau, strHo, strTen, strNgaySinh).equals("Tài khoản đăng ký thành công.")) {
             setVisible(false);
             FrameDangNhap dn = new FrameDangNhap();
             dn.setVisible(true);

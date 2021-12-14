@@ -90,19 +90,17 @@ public class Camera extends JFrame{
         cameraScreen.setBounds(0, 0, 640, 480);
         add(cameraScreen);
         this.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                int hoi = JOptionPane.showConfirmDialog(null, "Bạn có muốn thoát chương trình không?",null, JOptionPane.YES_NO_OPTION);
-                if (hoi == JOptionPane.YES_OPTION) {
-                    try {
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                        writer.write(aes.encrypt("DEAD"));
-                        writer.newLine();
-                        writer.flush();
-                    } catch (IOException ex) {
-                        Logger.getLogger(Face_Recognition.class.getName()).log(Level.SEVERE, null, ex);
-                    } finally {
-                        
-                    }
+            public void windowClosing(WindowEvent e) {         
+                try {
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    writer.write(aes.encrypt("DEAD"));
+                    writer.newLine();
+                    writer.flush();
+                    System.exit(0);
+                } catch (IOException ex) {
+                    Logger.getLogger(Face_Recognition.class.getName()).log(Level.SEVERE, null, ex);
+                } finally {
+
                 }
             }
         });
@@ -140,60 +138,52 @@ public class Camera extends JFrame{
                 System.out.println("Error");
             }
             else {   
-                    if (capture.read(image)){
-                        final MatOfByte buf = new MatOfByte();
-                        Imgcodecs.imencode(".jpg", image, buf);
-                        imageData = buf.toArray();
-                        icon = new ImageIcon(imageData);           
-                        cameraScreen.setIcon(icon);
-                        if(clicked){
-                        	System.out.println("Click");
-//                          String name = JOptionPane.showInputDialog(this,"Enter image name");
-//                          if(name==null){
-//                              name = new SimpleDateFormat("yyyy-mm-dd-hh-mm-ss").format(new Date());
-//                          }
-//                          
-//                          Imgcodecs.imwrite("images/"+name+".jpg", image);
-                        	try {
-                                                      
-    							/*Thread.sleep(3000);
-    							byte[] data = new byte[1000];
-    					        int count = dis.read(data);
-    					        real =new byte[count+1];
-    					        for(int i=1;i<=count;i++)
-    					        {real[i]=data[i];}
-    					        System.out.println(real.toString());
-    					        Mat newmat = Imgcodecs.imdecode(new MatOfByte(real), Imgcodecs.IMREAD_UNCHANGED);	
-                        		fa.loadAnh(newmat);
-    	                          clicked = false;
-    	                          setVisible(false);
-    	                          dout.close();
-    	              	        dis.close();
-    	              	        socket.close();*/
-                                           fa= new Face_Recognition(this.socket,this.secretKey, getId());
-                                           fa.Start(getId(), getLastName(), getNameUser(), getDate_of_birth());
-                                            fa.loadAnh(image);
-                                            clicked = false;
-                                            setVisible(false);
-    	                          dispose();  
-    	                          
-    						}catch(SocketTimeoutException ex){
-    							System.out.println("Lỗi Start camera và SocketTimeout");
-    						} 
-                        	catch (IOException e) {
-    							// TODO Auto-generated catch block
-    							System.out.println("Lỗi Start camera IOException");
-    						}
-                        	
-                                      
+                if (capture.read(image)){
+                    final MatOfByte buf = new MatOfByte();
+                    Imgcodecs.imencode(".jpg", image, buf);
+                    imageData = buf.toArray();
+                    icon = new ImageIcon(imageData);           
+                    cameraScreen.setIcon(icon);
+                    if(clicked){
+                        System.out.println("Click");
+//                       String name = JOptionPane.showInputDialog(this,"Enter image name");
+//                       if(name==null){
+//                          name = new SimpleDateFormat("yyyy-mm-dd-hh-mm-ss").format(new Date());
+//                       }
+//                       Imgcodecs.imwrite("images/"+name+".jpg", image);
+                        try {
+                            /*Thread.sleep(3000);
+                            byte[] data = new byte[1000];
+                            int count = dis.read(data);
+                            real =new byte[count+1];
+                            for(int i=1;i<=count;i++)
+                            {real[i]=data[i];}
+                            System.out.println(real.toString());
+                            Mat newmat = Imgcodecs.imdecode(new MatOfByte(real), Imgcodecs.IMREAD_UNCHANGED);	
+                            fa.loadAnh(newmat);
+                            clicked = false;
+                            setVisible(false);
+                            dout.close();
+                            dis.close();
+                            socket.close();*/
+                            fa= new Face_Recognition(this.socket,this.secretKey, getId());
+                            fa.Start(getId(), getLastName(), getNameUser(), getDate_of_birth());
+                            fa.loadAnh(image);
+                            clicked = false;
+                            setVisible(false);
+                            dispose();        
+                        }catch(SocketTimeoutException ex){
+                            System.out.println("Lỗi Start camera và SocketTimeout");
+                        } 
+                        catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            System.out.println("Lỗi Start camera IOException");
+                        }
                     }
                 }
-                
-                
-            }
-           
             }
         }
+    }
 
     
 //    public static void main(String args[]) {

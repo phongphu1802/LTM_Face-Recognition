@@ -36,225 +36,241 @@ import org.opencv.core.Mat;
 import Controller.DangKyController;
 import Controller.DangNhapController;
 import Controller.ThemAnhController;
+import java.util.Date;
 import ltm.server.AES;
 import ltm.server.RSA;
 
 public class WorkerThread extends Thread {
+
     private Socket socket;
     ConnectAPI connectAPI;
-    BufferedReader in=null;
+    BufferedReader in = null;
     BufferedWriter out = null;
     private static String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCgFGVfrY4jQSoZQWWygZ83roKXWD4YeT2x2p41dGkPixe73rT2IW04glagN2vgoZoHuOPqa5and6kAmK2ujmCHu6D1auJhE2tXP+yLkpSiYMQucDKmCsWMnW9XlC5K7OSL77TXXcfvTvyZcjObEz6LIBRzs6+FqpFbUO9SJEfh6wIDAQAB";
     private static String privateKey = "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAKAUZV+tjiNBKhlBZbKBnzeugpdYPhh5PbHanjV0aQ+LF7vetPYhbTiCVqA3a+Chmge44+prlqd3qQCYra6OYIe7oPVq4mETa1c/7IuSlKJgxC5wMqYKxYydb1eULkrs5IvvtNddx+9O/JlyM5sTPosgFHOzr4WqkVtQ71IkR+HrAgMBAAECgYAkQLo8kteP0GAyXAcmCAkA2Tql/8wASuTX9ITD4lsws/VqDKO64hMUKyBnJGX/91kkypCDNF5oCsdxZSJgV8owViYWZPnbvEcNqLtqgs7nj1UHuX9S5yYIPGN/mHL6OJJ7sosOd6rqdpg6JRRkAKUV+tmN/7Gh0+GFXM+ug6mgwQJBAO9/+CWpCAVoGxCA+YsTMb82fTOmGYMkZOAfQsvIV2v6DC8eJrSa+c0yCOTa3tirlCkhBfB08f8U2iEPS+Gu3bECQQCrG7O0gYmFL2RX1O+37ovyyHTbst4s4xbLW4jLzbSoimL235lCdIC+fllEEP96wPAiqo6dzmdH8KsGmVozsVRbAkB0ME8AZjp/9Pt8TDXD5LHzo8mlruUdnCBcIo5TMoRG2+3hRe1dHPonNCjgbdZCoyqjsWOiPfnQ2Brigvs7J4xhAkBGRiZUKC92x7QKbqXVgN9xYuq7oIanIM0nz/wq190uq0dh5Qtow7hshC/dSK3kmIEHe8z++tpoLWvQVgM538apAkBoSNfaTkDZhFavuiVl6L8cWCoDcJBItip8wKQhXwHp0O3HLg10OEd14M58ooNfpgt+8D8/8/2OOFaR0HzA+2Dm";
-    private String encodeSecretKey ="";
+    private String encodeSecretKey = "";
     private RSA rsa;
     private AES aes;
     private SecretKey key;
-    private boolean check=true;
-    public WorkerThread(Socket socket,SecretKey secretKey) {	
-	this.socket=socket;
-	this.key = secretKey;
+    private boolean check = true;
+
+    public WorkerThread(Socket socket, SecretKey secretKey) {
+        this.socket = socket;
+        this.key = secretKey;
     }
+
     public void run() {
-	try {
-            while(true) {
-		System.out.println("Day la key"+this.key);
-                    switch(aes.decrypt(Request(),this.key)){
-		    case "login":{
-		        System.out.println("login");
-		        Login();
-		        break;
-		    }
-		    case "register":{
-		        System.out.println("register");
-		        Register();
-		        break;
-		    }
-		    case "Camera":{
+        try {
+            while (true) {
+                System.out.println("Day la key" + this.key);
+                switch (aes.decrypt(Request(), this.key)) {
+                    case "login": {
+                        System.out.println("login");
+                        Login();
+                        break;
+                    }
+                    case "register": {
+                        System.out.println("register");
+                        Register();
+                        break;
+                    }
+                    case "Camera": {
                         face_detect();
-		        break;
-		    }
-		    case "face regconize":{
-		        System.out.println("vao face reg");
-		        face_reg();
-		        break;
-		    }
-		    case "Static":{
-		        face_detect();
-		        break;
-		    }
-                    case "DEAD":{
-		        interrupt();
+                        break;
+                    }
+                    case "face regconize": {
+                        System.out.println("vao face reg");
+                        face_reg();
+                        break;
+                    }
+                    case "Object": {
+                        objectDetect();
+                        break;
+                    }
+
+                    case "DEAD": {
+                        interrupt();
                         return;
-		    }
-                    case "add":{
+                    }
+                    case "add": {
                         System.out.println("Thêm ảnh");
                         Add_image();
                         break;
                     }
-		}
+                }
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             // TODO: handle exception
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	} catch (InvalidKeyException e) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            System.err.println("Lỗi kết nối");
+        } catch (InvalidKeyException e) {
             // TODO Auto-generated catch block
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	} catch (IllegalBlockSizeException e) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            interrupt();
+        } catch (IllegalBlockSizeException e) {
             // TODO Auto-generated catch block
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	} catch (BadPaddingException e) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            interrupt();
+        } catch (BadPaddingException e) {
             // TODO Auto-generated catch block
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	} catch (NoSuchAlgorithmException e) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            interrupt();
+        } catch (NoSuchAlgorithmException e) {
             // TODO Auto-generated catch block
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	} catch (NoSuchPaddingException e) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            interrupt();
+        } catch (NoSuchPaddingException e) {
             // TODO Auto-generated catch block
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	} catch (InterruptedException e) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            interrupt();
+        } catch (InterruptedException e) {
             // TODO Auto-generated catch block
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	} catch (ParseException e) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            interrupt();
+        } catch (ParseException e) {
             // TODO Auto-generated catch block
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	} catch (Exception e) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            interrupt();
+        } catch (Exception e) {
             // TODO Auto-generated catch block
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-	}
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            interrupt();
+        }
     }
-    
-    public static Mat bufferedImageToMat(BufferedImage bi) {
-	Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
-	byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
-	mat.put(0, 0, data);
-	return mat;
-    }
-	    
-	    public void Login() throws IOException{
-	        JSONParser parser = new JSONParser();
-	        JSONObject object = null;
-	        try {
-	            String rse=in.readLine();
-	            object = (JSONObject)parser.parse(aes.decrypt(rse,key));
-	        } catch (ParseException ex) {
-	            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	        }
-	        //Tách User Pass khỏi Json
-	        String User = (String) object.get("user");
-	        String Pass = (String) object.get("pass");
-	        DangNhapController kiemtra = new DangNhapController();
-	        try {
-	            switch(kiemtra.DangNhapController(User, Pass)){
-	                case "1":{
-	                    Reply(aes.encrypt("1"));
-	                    break;
-	                }
-	                case "2":{
-	                    Reply(aes.encrypt("2"));
-	                    break;
-	                }
-	                case "3":{
-	                    //Trả về thông báo đăng nhập thành công
-	                    Reply(aes.encrypt("3"));
-	                    //Trả về thông tin người dùng
-	                    Reply(aes.encrypt(kiemtra.Select_User().toString()));
-	                    break;
-	                }
-	            }
-	        } catch (Exception ex) {
-	            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	        }
-	    }
 
-	    public void Register(){
-	        try {
-	            JSONParser parser = new JSONParser();
-	            JSONObject object = null;
-	            try {
-	                String rse=in.readLine();
-	                object = (JSONObject) parser.parse(aes.decrypt(rse,key));
-	                System.out.println(object.toString());
-	            } catch (ParseException ex) {
-	                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	            }
-	            //Tách User Pass khỏi Json
-	            String user = (String) object.get("user");
-	            String pass = (String) object.get("pass");
-	            String lastName = (String) object.get("lastname");
-	            String firstName = (String) object.get("firstname");
-	            String date_Of_Birth = (String) object.get("date_of_birth");
+    public static Mat bufferedImageToMat(BufferedImage bi) {
+        Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+        byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        mat.put(0, 0, data);
+        return mat;
+    }
+
+    public void Login() throws IOException {
+        JSONParser parser = new JSONParser();
+        JSONObject object = null;
+        try {
+            String rse = in.readLine();
+            object = (JSONObject) parser.parse(aes.decrypt(rse, key));
+        } catch (ParseException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //Tách User Pass khỏi Json
+        String User = (String) object.get("user");
+        String Pass = (String) object.get("pass");
+        DangNhapController kiemtra = new DangNhapController();
+        try {
+            switch (kiemtra.DangNhapController(User, Pass)) {
+                case "1": {
+                    Reply(aes.encrypt("1"));
+                    break;
+                }
+                case "2": {
+                    Reply(aes.encrypt("2"));
+                    break;
+                }
+                case "3": {
+                    //Trả về thông báo đăng nhập thành công
+                    Reply(aes.encrypt("3"));
+                    //Trả về thông tin người dùng
+                    Reply(aes.encrypt(kiemtra.Select_User().toString()));
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void Register() {
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject object = null;
+            try {
+                String rse = in.readLine();
+                object = (JSONObject) parser.parse(aes.decrypt(rse, key));
+                System.out.println(object.toString());
+            } catch (ParseException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            //Tách User Pass khỏi Json
+            String user = (String) object.get("user");
+            String pass = (String) object.get("pass");
+            String lastName = (String) object.get("lastname");
+            String firstName = (String) object.get("firstname");
+            String date_Of_Birth = (String) object.get("date_of_birth");
 //	            System.out.println(user+"#"+pass+"#"+lastName+"#"+firstName+"#"+date_Of_Birth);
-	            
-	            DangKyController kiemtra = new DangKyController();
-	            switch(kiemtra.DangKyController(user, pass, lastName, firstName, date_Of_Birth)){
-	                case "0":{
-	                    Reply(aes.encrypt("0"));
-	                    break;
-	                }
-	                case "1":{
-	                    Reply(aes.encrypt("1"));
-	                    break;
-	                }
-	            }
-	        } catch (Exception ex) {
-	            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	        }
-	    }
-	    public void face_reg() throws Exception {
-	    	try {
-	    		String id =Request();
-	    		String uid = aes.decrypt(id, key);
-	    		System.out.println(uid);
-	    		String dataImageEncode = in.readLine();
-	    		String images = aes.decrypt(dataImageEncode, key);
+
+            DangKyController kiemtra = new DangKyController();
+            switch (kiemtra.DangKyController(user, pass, lastName, firstName, date_Of_Birth)) {
+                case "0": {
+                    Reply(aes.encrypt("0"));
+                    break;
+                }
+                case "1": {
+                    Reply(aes.encrypt("1"));
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void face_reg() throws Exception {
+        try {
+            String id = Request();
+            String uid = aes.decrypt(id, key);
+            System.out.println(uid);
+            String dataImageEncode = in.readLine();
+            String images = aes.decrypt(dataImageEncode, key);
 //	    		System.out.println(images);
-	        	ByteArrayOutputStream byteArrayOutputStream= new ByteArrayOutputStream();
-	            BufferedImage bimg;
-	             byte[] imageAr = Base64.getDecoder().decode(images);
-	            bimg = ImageIO.read(new ByteArrayInputStream(imageAr));
-	            face_reg f_reg = new face_reg(uid, bimg);
-	            ArrayList<JSONObject> result = f_reg.getResultFromAPI();
-	            for(JSONObject o:result) {
-	            	String reply = aes.encrypt1(o.toString(),key);
-	            	Reply(reply);
-	            }
-	            Reply(aes.encrypt1("END",key));
-	    	}catch (Exception ex) {
-	    		ex.printStackTrace();
-	           // Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	        } finally {
-	           
-	        }
-	    }
-	    public void face_detect() throws InterruptedException, ParseException{
-	        System.out.println("im in face_detect");
-	        try {
-                    ByteArrayOutputStream byteArrayOutputStream= new ByteArrayOutputStream();
-	            BufferedImage bimg;
-	            String line = aes.decrypt(in.readLine(), key);
-	            byte[] imageAr = Base64.getDecoder().decode(line);
-	            bimg = ImageIO.read(new ByteArrayInputStream(imageAr));
-	            if(bimg!=null){
-	                BufferedImage mat =face_detect.detect(bufferedImageToMat(bimg));
-	                ImageIO.write(mat, "jpg", byteArrayOutputStream);
-	                if(byteArrayOutputStream!=null) { 
-	                	String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
-	                	String reply = aes.encrypt(byteImage);
-	                    Reply(reply);
-	                }
-	               
-	            }
-	            //in.close();
-	           // out.close();
-	        } catch (IOException ex) {
-	            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	        } finally {
-	           
-	        }
-	    }
-            
-    public void Add_image(){
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedImage bimg;
+            byte[] imageAr = Base64.getDecoder().decode(images);
+            bimg = ImageIO.read(new ByteArrayInputStream(imageAr));
+            face_reg f_reg = new face_reg(uid, bimg);
+            ArrayList<JSONObject> result = f_reg.getResultFromAPI();
+            for (JSONObject o : result) {
+                String reply = aes.encrypt1(o.toString(), key);
+                Reply(reply);
+            }
+            Reply(aes.encrypt1("END", key));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+
+        }
+    }
+
+    public void face_detect() throws InterruptedException, ParseException {
+        System.out.println("im in face_detect");
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedImage bimg;
+            String line = aes.decrypt(in.readLine(), key);
+            byte[] imageAr = Base64.getDecoder().decode(line);
+            bimg = ImageIO.read(new ByteArrayInputStream(imageAr));
+            if (bimg != null) {
+                BufferedImage mat = face_detect.detect(bufferedImageToMat(bimg));
+                ImageIO.write(mat, "jpg", byteArrayOutputStream);
+                if (byteArrayOutputStream != null) {
+                    String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+                    String reply = aes.encrypt(byteImage);
+                    Reply(reply);
+                }
+
+            }
+            //in.close();
+            // out.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+
+        }
+    }
+
+    public void Add_image() {
         try {
             String image = aes.decrypt(in.readLine(), key);
             String user = aes.decrypt(in.readLine(), key);
@@ -262,54 +278,85 @@ public class WorkerThread extends Thread {
             byte[] imageAr = Base64.getDecoder().decode(image);
             BufferedImage bimg = ImageIO.read(new ByteArrayInputStream(imageAr));
             ThemAnhController Them = new ThemAnhController();
-            switch(Them.themAnh(user, bimg, imageAr)){
-                case 0:{
+            switch (Them.themAnh(user, bimg, imageAr)) {
+                case 0: {
                     Reply(aes.encrypt("0"));
                     break;
                 }
-                case 1:{
+                case 1: {
                     Reply(aes.encrypt("1"));
                     break;
                 }
-                case 2:{
+                case 2: {
                     Reply(aes.encrypt("2"));
                     break;
                 }
             }
             //in.close();
-           // out.close();
+            // out.close();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-           
+
         }
     }
-	    
-	    //Thực thi nhận request
-	    public String Request(){
-	        String request="";
-	        try {
-	            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-	            request=in.readLine();
-	        } catch (IOException ex) {
-	            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	        }
-	        return request;
-	    }
-	    
-	    //Thực thi gửi request về client
-	    public void Reply(String stResult){
-	        try {
-	            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-	            out.write(stResult);
-	            out.newLine();
-	            out.flush();
-	        } catch (IOException ex) {
-	            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-	        }
-	    }
-	    public String Regconize() {
-	    	
-	    	return null;
-	    }
+
+    public void objectDetect() {
+        try {
+            long s1 = System.currentTimeMillis();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedImage bimg;
+            String line = aes.decrypt(in.readLine(), key);
+            byte[] imageAr = Base64.getDecoder().decode(line);
+            bimg = ImageIO.read(new ByteArrayInputStream(imageAr));
+            if (bimg != null) {
+                face_detect detect = new face_detect();
+                System.out.println("M1");
+                BufferedImage mat = detect.objectDetect(bufferedImageToMat(bimg));
+                System.out.println("M2");
+                ImageIO.write(mat, "jpg", byteArrayOutputStream);
+                if (byteArrayOutputStream != null) {
+                    String byteImage = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+                    String reply = aes.encrypt(byteImage);
+                    Reply(reply);
+                }
+                
+            }
+            //in.close();
+            // out.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+
+        }
+    }
+
+    //Thực thi nhận request
+    public String Request() {
+        String request = "";
+        try {
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            request = in.readLine();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return request;
+    }
+
+    //Thực thi gửi request về client
+    public void Reply(String stResult) {
+        try {
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.write(stResult);
+            out.newLine();
+            out.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public String Regconize() {
+
+        return null;
+    }
 }

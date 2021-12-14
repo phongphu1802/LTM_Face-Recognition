@@ -66,7 +66,6 @@ public class DangNhapController {
         user.put("LastName", arUser.get(0).getLastName());
         user.put("NameUser", arUser.get(0).getNameUser());
         user.put("Date_of_birth",""+arUser.get(0).getDate_of_birth());
-        System.out.println(user);
         return user;    
     }
     

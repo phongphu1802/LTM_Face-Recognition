@@ -84,12 +84,11 @@ public class Server {
 		executor.execute(handler);
             }
         } catch (Exception e) {
-        	Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
-
+//        	Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
+            System.err.println("Lỗi kết nối");
         }		
     }
 
-    
     //Thực thi nhận request
     public String Request(){
         String request="";
@@ -97,7 +96,8 @@ public class Server {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             request=in.readLine();
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+              System.err.println("Lỗi kết nối");
         }
         return request;
     }
@@ -110,7 +110,8 @@ public class Server {
             out.newLine();
             out.flush();
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Lỗi kết nối");
         }
     }
     public String Regconize() {

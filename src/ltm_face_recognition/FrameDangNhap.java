@@ -25,15 +25,12 @@ public class FrameDangNhap extends javax.swing.JFrame {
         initComponents();
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                int hoi = JOptionPane.showConfirmDialog(null, "Bạn có muốn thoát chương trình không?",null, JOptionPane.YES_NO_OPTION);
-                if (hoi == JOptionPane.YES_OPTION) {
-                    if(DangNhap.getSecretKey()==null){
-                        System.exit(0);
-                    }else{
-                        String s1=DangNhap.Encrypt("DEAD");
-                        DangNhap.Reply(s1);
-                        System.exit(0);
-                    }
+                if (DangNhap.getSecretKey() == null) {
+                    System.exit(0);
+                } else {
+                    String s1 = DangNhap.Encrypt("DEAD");
+                    DangNhap.Reply(s1);
+                    System.exit(0);
                 }
             }
         });
