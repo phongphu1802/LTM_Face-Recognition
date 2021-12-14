@@ -69,7 +69,7 @@ public class Result_Image extends javax.swing.JFrame {
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Lỗi result_Image");
 		}
     }
 
@@ -95,7 +95,7 @@ public class Result_Image extends javax.swing.JFrame {
 					Face_Recognition face = new Face_Recognition(socket, key, userID);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					System.out.println("Lỗi khởi tạo Components");
 				}
                 //MainPage m = new MainPage();
                 //m.setVisible(true);
@@ -190,7 +190,7 @@ public class Result_Image extends javax.swing.JFrame {
     		
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Lỗi setResult");
 			}	
     	}
         //Sắp xếp danh sách theo tỉ lệ giảm dần!
@@ -209,7 +209,7 @@ public class Result_Image extends javax.swing.JFrame {
             }
         });
         for (int i = 0; i < arRI.size(); i++) {
-            File e = new File("C:\\Users\\LENOVO\\eclipse-workspace\\ltm\\folder\\"+arRI.get(i).getsImage());
+            File e = new File("../ltm/folder/"+arRI.get(i).getsImage());
             JLabel imageLabel = new JLabel();
             ImageIcon icon = new ImageIcon(ImageIO.read(e));
             Image image = icon.getImage().getScaledInstance(160,160, Image.SCALE_SMOOTH);
